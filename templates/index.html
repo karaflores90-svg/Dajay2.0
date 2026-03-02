@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar: Fire and Ash Landing Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Style para sa username display sa navbar */
+        .user-greeting {
+            color: #00d4ff;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .btn-logout {
+            background-color: #e63946 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/movies">Movies</a></li>
+                <li><a href="#">Categories</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </nav>
+
+        <div class="auth-buttons">
+            {% if name %}
+                <span class="user-greeting">Welcome, {{ name }}!</span>
+                <a href="/logout" class="btn btn-signin btn-logout" style="text-decoration: none;">Logout</a>
+            {% else %}
+                <a href="/signup" class="btn btn-signup" style="text-decoration: none;">Sign Up</a>
+                <a href="/signin" class="btn btn-signin" style="text-decoration: none;">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="hero">
+        <div class="hero-content">
+
+
+            <h1>Avatar: Fire and Ash (2025)</h1>
+            <p>
+                is an epic sci-fi action film directed by James Cameron, following Jake Sully and Neytiri
+                as they navigate grief after Neteyam's death. The family encounters a new, aggressive Na'vi
+                tribe known as the Ash People, led by the fiery Varang, while the RDA human threat continues.
+            </p>
+            <div class="hero-actions">
+               <a href="https://youtu.be/nb_fFj_0rq8?si=bAzxe33dTAoWqcGr" target="_blank" class="btn btn-trailer" style="text-decoration: none; display: inline-block; text-align: center;">Watch Trailer</a>
+                <button class="btn btn-book">Book Ticket</button>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

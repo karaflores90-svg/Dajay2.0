@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movies - Now Showing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .movies-section { padding: 50px; text-align: center; background-color: #333; color: white; }
+        .tabs { margin-bottom: 30px; font-size: 1.5rem; }
+        .tabs span { margin: 0 20px; cursor: pointer; color: #888; padding-bottom: 5px; }
+
+        /* Active tab style base sa imong screenshot */
+        .tabs .active {
+            color: #ff4500;
+            border-bottom: 4px solid #ff4500;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .movie-card { background: #444; padding: 15px; border-radius: 10px; transition: 0.3s; }
+        .movie-card:hover { transform: translateY(-5px); border: 1px solid #ff4500; }
+        .movie-card img { width: 100%; height: 350px; object-fit: cover; border-radius: 5px; }
+        .movie-card h3 { margin: 15px 0 5px; font-size: 1.1rem; }
+        .watch-link { color: #ff4500; text-decoration: none; font-weight: bold; display: block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/movies" class="active">Movies</a></li>
+                <li><a href="#">Categories</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <span style="color: white;">Hi, {{ name }}!</span>
+            <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+        </div>
+    </header>
+
+   <main class="movies-section">
+    <div class="tabs">
+        <span id="tab-now" class="active" onclick="switchTab('now')">Now Showing</span>
+        <span id="tab-soon" onclick="switchTab('soon')">Coming Soon</span>
+    </div>
+
+        <div id="grid-now" class="movie-grid">
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='28_YearsLater.jpg') }}" alt="28 Years Later: The Bone Temple">
+                <h3>28 Years Later: The Bone Temple</h3>
+                <a href="https://youtu.be/EOwTdTZA8D8?si=DsUXGkVrbonru8-6" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='spongebob.jpg') }}" alt="Spongebob">
+                <h3>The SpongeBob Movie: Search for Squarepants</h3>
+                <a href="https://www.youtube.com/watch?v=w7t2gyIwvDo" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='silentHill.jpg') }}" alt="Silent Hill">
+                <h3>Silent Hill</h3>
+                <a href="https://youtu.be/fTPHkslPCr0?si=7tsIdR1xuKGVOTRV" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='demon2.jpg') }}" alt="Demon Slayer">
+                <h3>Demon Slayer: Infinity Castle</h3>
+                <a href="https://www.youtube.com/watch?v=x7uLutVRBfI" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='miniions.jpg') }}" alt="Minions">
+                <h3>Minions: The Rise of Gru</h3>
+                <a href="https://www.youtube.com/watch?v=2OFBOidtfWI" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='Despicable Me.jpg') }}" alt="Despicable Me">
+                <h3>Despicable Me</h3>
+                <a href="https://www.youtube.com/watch?v=zzCZ1W_CUoI" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+        </div>
+
+        <div id="grid-soon" class="movie-grid" style="display: none;">
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='avatar.jpg') }}" alt="Avatar 4">
+                <h3>Avatar 4</h3>
+               <a href="https://youtu.be/7PDun0d1gr0?si=iyBL4PRvQq6Uo-20" target="_blank" class="watch-link">Watch Trailer</a>
+
+            </div>
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='avengers.jpg') }}" alt="Avengers">
+                <h3>Avengers: Secret Wars</h3>
+               <a href="https://youtu.be/CenysnhhWPM?si=7iSBLo2qJpYMuXrX" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='Odyssey.jpg') }}" alt="The Odyssey">
+                <h3>The Odyssey</h3>
+                <a href="https://youtu.be/yokfcRSofWs?si=txoZ1gv5ihrHkNWJ" target="_blank" class="watch-link">Watch Trailer</a>
+            </div>
+        </div>
+    </main>
+
+<script>
+        function switchTab(type) {
+            const gridNow = document.getElementById('grid-now');
+            const gridSoon = document.getElementById('grid-soon');
+            const tabNow = document.getElementById('tab-now');
+            const tabSoon = document.getElementById('tab-soon');
+
+            if (type === 'now') {
+                gridNow.style.display = 'grid';
+                gridSoon.style.display = 'none';
+                tabNow.classList.add('active');
+                tabSoon.classList.remove('active');
+            } else {
+                gridNow.style.display = 'none';
+                gridSoon.style.display = 'grid';
+                tabSoon.classList.add('active');
+                tabNow.classList.remove('active');
+            }
+        }
+    </script>
+
+</body>
+</html>
