@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - Cinemiqu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/movies">Movies</a></li>
+                <li><a href="/categories" class="active">Categories</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <span class="user-greeting">Hi, {{ name | default('Dyn', true) }}!</span>
+            <div class="user-avatar"></div>
+        </div>
+    </header>
+
+    <main class="movies-section">
+        <h1 style="color: #ff4500; margin-bottom: 20px;">Movie Categories</h1>
+
+        <div class="tabs">
+            <span class="active" onclick="filterGenre('all')">All</span>
+            <span onclick="filterGenre('sci-fi')">Sci-Fi</span>
+            <span onclick="filterGenre('horror')">Horror</span>
+            <span onclick="filterGenre('animation')">Animation</span>
+        </div>
+
+        <div class="movie-grid" id="category-grid">
+            <div class="movie-card" data-genre="sci-fi">
+                <img src="{{ url_for('static', filename='avatar1.jpg') }}" alt="Avatar">
+                <h3>Avatar: Fire and Ash</h3>
+                <a href="#" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card" data-genre="horror">
+                <img src="{{ url_for('static', filename='28_YearsLater.jpg') }}" alt="28 Years Later">
+                <h3>28 Years Later: The Bone Temple</h3>
+                <a href="#" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card" data-genre="animation">
+                <img src="{{ url_for('static', filename='spongebob.jpg') }}" alt="Spongebob">
+                <h3>The SpongeBob Movie</h3>
+                <a href="#" class="watch-link">Watch Trailer</a>
+            </div>
+
+            <div class="movie-card" data-genre="horror">
+                <img src="{{ url_for('static', filename='silentHill.jpg') }}" alt="Silent Hill">
+                <h3>Return to Silent Hill</h3>
+                <a href="#" class="watch-link">Watch Trailer</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function filterGenre(genre) {
+            const cards = document.querySelectorAll('.movie-card');
+            const tabs = document.querySelectorAll('.tabs span');
+
+            // I-update ang active tab style
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if(tab.innerText.toLowerCase() === genre) tab.classList.add('active');
+                if(genre === 'all' && tab.innerText === 'All') tab.classList.add('active');
+            });
+
+            // I-filter ang mga cards
+            cards.forEach(card => {
+                if (genre === 'all' || card.getAttribute('data-genre') === genre) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

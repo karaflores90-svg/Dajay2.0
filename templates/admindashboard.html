@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Cinemiqu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="admin-body">
+
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="/movies">Movies</a></li>
+                <li><a href="/admin" class="active">Dashboard</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <span class="user-greeting" style="color: #00d4ff; font-weight: bold; margin-right: 15px;">
+                Hi, {{ name }}!
+            </span>
+            <a href="/logout" class="btn btn-trailer">Logout</a>
+        </div>
+    </header>
+
+    <section class="admin-form-container" style="max-width: 800px; margin: 40px auto; background: #222; padding: 30px; border-radius: 10px; border: 1px solid #444;">
+        <h2 style="color: #ff4500; margin-bottom: 20px;">Upload New Movie</h2>
+
+        <form action="/add_movie" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
+
+            <input type="text" name="title" placeholder="Movie Title (e.g. Avatar: Fire and Ash)" required style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
+
+            <div style="text-align: left;">
+                <label style="color: #ccc; font-size: 0.9rem; display: block; margin-bottom: 8px;">Select Movie Poster:</label>
+                <input type="file" name="image_file" id="imageInput" accept="image/*" required style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 5px; cursor: pointer;">
+
+                <div id="preview-container" style="margin-top: 15px; display: none; text-align: center;">
+                    <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 5px;">Image Preview:</p>
+                    <img id="imagePreview" src="#" alt="Preview" style="max-height: 200px; border-radius: 8px; border: 2px solid #ff4500;">
+                </div>
+            </div>
+
+            <select name="status" style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
+                <option value="Now Showing">Now Showing</option>
+                <option value="Coming Soon">Coming Soon</option>
+            </select>
+
+            <input type="text" name="trailer" placeholder="YouTube Link (Embed URL or Link)" required style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
+
+            <button type="submit" class="btn-orange-block" style="background: #ff4500; color: white; padding: 15px; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s;">
+                🚀 Upload Movie
+            </button>
+        </form>
+    </section>
+
+    <section class="movie-list" style="max-width: 900px; margin: 40px auto; padding-bottom: 50px;">
+        <h2 style="color: white; border-bottom: 2px solid #ff4500; padding-bottom: 10px;">Current Movie List</h2>
+        <table style="width: 100%; margin-top: 20px; border-collapse: collapse; background: #222; color: white;">
+            <thead>
+                <tr style="background: #ff4500;">
+                    <th style="padding: 15px; text-align: left;">Title</th>
+                    <th style="padding: 15px; text-align: center;">Status</th>
+                    <th style="padding: 15px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movie in movies %}
+                <tr style="border-bottom: 1px solid #444;">
+                    <td style="padding: 15px;">{{ movie.title }}</td>
+                    <td style="text-align: center; padding: 15px;">{{ movie.status }}</td>
+                    <td style="text-align: center; padding: 15px;">
+                        <a href="/delete_movie/{{ movie.id }}" style="color: #ff4d4d; text-decoration: none; font-weight: bold; padding: 5px 10px; border: 1px solid #ff4d4d; border-radius: 4px;" onclick="return confirm('Sigurado ka i-delete ni nga salida?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <script>
+        document.getElementById('imageInput').onchange = function (evt) {
+            const [file] = this.files;
+            if (file) {
+                const preview = document.getElementById('imagePreview');
+                const container = document.getElementById('preview-container');
+                preview.src = URL.createObjectURL(file);
+                container.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

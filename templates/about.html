@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - MovieFlix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/movies">Movies</a></li>
+                <li><a href="/categories">Categories</a></li>
+                <li><a href="/about" class="active">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <span class="user-greeting">Hi, {{ name }}!</span>
+            <div class="user-avatar"></div>
+        </div>
+    </header>
+
+    <main class="about-container">
+        <section class="about-hero">
+            <h1>About Cinemiq</h1>
+            <p>Your ultimate destination for the latest cinematic experiences.</p>
+        </section>
+
+        <section class="about-content">
+            <div class="about-text">
+                <h2>Our Mission</h2>
+                <p>
+                    MovieFlix was founded with a simple goal: to bring the magic of the big screen
+                    straight to your fingertips. Whether you're looking for the spine-chilling
+                    thrills of <i>28 Years Later</i> or the family-friendly fun of <i>SpongeBob</i>,
+                    we provide the latest updates and trailers for movie enthusiasts worldwide.
+                </p>
+
+                <h2>What We Offer</h2>
+                <ul>
+                    <li>Real-time "Now Showing" movie updates.</li>
+                    <li>Exclusive "Coming Soon" previews and trailers.</li>
+                    <li>Personalized movie watchlists and booking reminders.</li>
+                </ul>
+            </div>
+
+            <div class="about-image">
+                <div class="image-placeholder"></div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
