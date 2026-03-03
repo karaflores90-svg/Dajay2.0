@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.title }} - Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background-color: #121212; color: white; margin: 0; }
+        .booking-wrapper { max-width: 1000px; margin: 40px auto; padding: 20px; }
+
+        /* Header Section */
+        .movie-header { display: flex; gap: 30px; align-items: flex-start; margin-bottom: 40px; }
+        .poster-img { width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        .movie-info h1 { font-size: 2.8rem; margin: 0; color: #fff; }
+        .badge { background: #ff4500; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+        .genre-text { color: #888; margin: 10px 0; font-size: 1.1rem; }
+
+        /* Date Selection */
+        .section-title { font-size: 1.4rem; color: #ff4500; margin: 30px 0 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .date-container { display: flex; gap: 15px; margin-bottom: 30px; }
+        .date-card {
+            background: #1e1e1e; border: 1px solid #333; padding: 15px;
+            border-radius: 8px; text-align: center; min-width: 60px; cursor: pointer; transition: 0.3s;
+        }
+        .date-card.active { background: #ff4500; border-color: #ff4500; }
+        .date-card small { display: block; text-transform: uppercase; font-size: 0.7rem; color: #aaa; }
+        .date-card.active small { color: white; }
+
+        /* Cinema & Showtimes */
+        .cinema-box { background: #1e1e1e; padding: 25px; border-radius: 12px; border: 1px solid #333; }
+        .cinema-name { font-size: 1.3rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .cinema-loc { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+
+        .time-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .time-btn {
+            background: transparent; border: 1px solid #ff4500; color: #ff4500;
+            padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .time-btn:hover { background: #ff4500; color: white; }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/movies">Back to Movies</a></li>
+        </ul>
+    </nav>
+    <div class="auth-buttons"><span style="color: #00d4ff;">Hi, {{ name }}!</span></div>
+</header>
+
+<div class="booking-wrapper">
+    <div class="movie-header">
+        <img src="{{ url_for('static', filename=movie.image) }}" class="poster-img">
+        <div class="movie-info">
+            <span class="badge">PG-13</span>
+            <h1>{{ movie.title }}</h1>
+            <p class="genre-text">{{ movie.genre }}</p>
+            <p style="color: #bbb; line-height: 1.6; max-width: 600px;">{{ movie.description }}</p>
+        </div>
+    </div>
+
+    <h3 class="section-title">Select Date</h3>
+    <div class="date-container">
+        <div class="date-card active">
+            <small>Mar</small><strong>03</strong>
+        </div>
+        <div class="date-card">
+            <small>Mar</small><strong>04</strong>
+        </div>
+        <div class="date-card">
+            <small>Mar</small><strong>05</strong>
+        </div>
+    </div>
+
+    <div class="cinema-box">
+        <div class="cinema-name">{{ movie.cinema_name }}</div>
+        <div class="cinema-loc">📍 Scheduled on: {{ movie.show_date }}</div>
+
+        <div class="time-grid">
+            {% if movie.showtimes %}
+                {% for time in movie.showtimes.split(',') %}
+                <button class="time-btn" onclick="bookNow('{{ time.strip() }}')">
+                    {{ time.strip() }}
+                </button>
+                {% endfor %}
+            {% else %}
+                <p style="color: #888;">No showtimes available for this cinema.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function bookNow(time) {
+        alert("Booking for {{ movie.title }} at " + time + " is successful! 🍿\nProceed to payment counter.");
+    }
+</script>
+
+</body>
+</html>

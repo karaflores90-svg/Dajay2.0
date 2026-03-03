@@ -8,21 +8,24 @@
 </head>
 <body>
 
-    <header class="navbar">
-        <nav>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/movies">Movies</a></li>
-                <li><a href="/categories">Categories</a></li>
-                <li><a href="/about" class="active">About</a></li>
-            </ul>
-        </nav>
-        <div class="auth-buttons">
-            <span class="user-greeting">Hi, {{ name }}!</span>
-            <div class="user-avatar"></div>
-        </div>
-    </header>
+   <header class="navbar">
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/movies">Movies</a></li>
+            <li><a href="/categories">Categories</a></li>
+            <li><a href="/about" class="active">About</a></li>
 
+            {% if session.get('role') == 'admin' %}
+            <li><a href="/admin" style="color: #ff4500; font-weight: bold; border: 1px solid #ff4500; padding: 2px 8px; border-radius: 4px;">Dashboard</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+   <div class="auth-buttons">
+        <span style="color: #00d4ff; font-weight: bold; font-size: 1.1rem;">Hi, {{ name }}!</span>
+        <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+    </div>
+</header>
     <main class="about-container">
         <section class="about-hero">
             <h1>About Cinemiq</h1>

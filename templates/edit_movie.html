@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Movie - Cinemique</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: 'Segoe UI', sans-serif; }
+        .edit-wrapper { display: flex; justify-content: center; padding: 60px 20px; }
+        .edit-container { width: 100%; max-width: 900px; background: #1e1e1e; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .form-title { color: white; font-size: 2rem; margin-bottom: 30px; font-weight: bold; }
+        .form-label { color: #ff4500; font-weight: bold; display: block; margin-bottom: 10px; font-size: 1.1rem; }
+
+        /* Dark Input Boxes including Textarea */
+        input[type="text"], select, textarea {
+            width: 100%; padding: 14px; background: #2a2a2a !important; border: 1px solid #333 !important;
+            border-radius: 4px; color: #e0e0e0 !important; font-size: 1rem; outline: none; margin-bottom: 25px; box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #ff4500 !important; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-row { grid-column: span 2; }
+
+        .drag-area { padding: 50px; border: 2px dashed #444; text-align: center; background: #252525; cursor: pointer; border-radius: 6px; transition: 0.3s; margin-top: 5px; }
+        .drag-area:hover { border-color: #ff4500; background: #2a2a2a; }
+        .drag-text { color: #888; font-weight: 500; }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-save { flex: 2; padding: 15px; background-color: #ff4500; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .btn-cancel { flex: 1; padding: 15px; background-color: #3d3d3d; color: white; text-decoration: none; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="edit-wrapper">
+    <div class="edit-container">
+        <h1 class="form-title">Edit Movie: <span style="color: #ff4500;">{{ movie.title }}</span></h1>
+
+        <form action="{{ url_for('edit_movie', id=movie.id) }}" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="full-row">
+                    <label class="form-label">Movie Title</label>
+                    <input type="text" name="title" value="{{ movie.title }}" required>
+                </div>
+
+                <div>
+                    <label class="form-label">Movie Genre</label>
+                    <select name="genre">
+                        <option value="sci-fi" {% if movie.genre == 'sci-fi' %} selected {% endif %}>Sci-Fi</option>
+                        <option value="horror" {% if movie.genre == 'horror' %} selected {% endif %}>Horror</option>
+                        <option value="animation" {% if movie.genre == 'animation' %} selected {% endif %}>Animation</option>
+                        <option value="action" {% if movie.genre == 'action' %} selected {% endif %}>Action</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Listing Status</label>
+                    <select name="status">
+                        <option value="Now Showing" {% if movie.status == 'Now Showing' %} selected {% endif %}>Now Showing</option>
+                        <option value="Coming Soon" {% if movie.status == 'Coming Soon' %} selected {% endif %}>Coming Soon</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Cinema Name</label>
+                    <input type="text" name="cinema" value="{{ movie.cinema_name }}" required>
+                </div>
+
+                <div>
+                    <label class="form-label">Show Date</label>
+                    <input type="text" name="show_date" value="{{ movie.show_date }}" required>
+                </div>
+
+                <div class="full-row">
+                    <label class="form-label">Showtimes (e.g. 1:00 PM, 4:00 PM, 7:00 PM)</label>
+                    <input type="text" name="showtimes" value="{{ movie.showtimes }}" required>
+                </div>
+
+                <div class="full-row">
+                    <label class="form-label">Movie Description</label>
+                    <textarea name="description" rows="4">{{ movie.description }}</textarea>
+                </div>
+
+                <div class="full-row">
+                    <label class="form-label">YouTube Trailer Link (Embed URL)</label>
+                    <input type="text" name="trailer" value="{{ movie.trailer_link }}" required>
+                </div>
+
+                <div class="full-row">
+                    <label class="form-label">Update Poster (Keep empty to retain old image)</label>
+                    <div class="drag-area" onclick="document.getElementById('fileInput').click()">
+                        <p class="drag-text" id="fileName">📁 Click or drag to update poster</p>
+                        <input type="file" id="fileInput" name="image_file" style="display:none" onchange="updateName(this)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-save">Save Changes</button>
+                <a href="/admin/movies" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // JavaScript para sa folder/file selection
+    function updateName(input) {
+        if (input.files.length > 0) {
+            document.getElementById('fileName').innerHTML = "<span style='color: #00ff88;'>✅ Selected: " + input.files[0].name + "</span>";
+        }
+    }
+</script>
+
+</body>
+</html>

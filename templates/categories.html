@@ -3,84 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories - Cinemiqu</title>
+    <title>Categories - Cinemique</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Base Styling */
+        .movies-section { padding: 50px; text-align: center; background-color: #1a1a1a; color: white; min-height: 80vh; }
+        .tabs { margin-bottom: 30px; font-size: 1.2rem; }
+        .tabs span { margin: 0 15px; cursor: pointer; color: #888; padding-bottom: 5px; transition: 0.3s; font-weight: bold; }
+        .tabs .active { color: #ff4500; border-bottom: 4px solid #ff4500; }
+
+        /* Grid & Card */
+        .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; }
+        .movie-card { background: #222; padding: 15px; border-radius: 10px; transition: 0.3s; display: flex; flex-direction: column; border: 1px solid #333; }
+        .movie-card:hover { transform: translateY(-5px); border: 1px solid #ff4500; }
+        .movie-card img { width: 100%; height: 350px; object-fit: cover; border-radius: 5px; }
+        .movie-card h3 { margin: 15px 0 10px; font-size: 1.2rem; flex-grow: 1; text-align: left; color: #fff; }
+
+        /* Button Group Styling */
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-watch, .btn-book { flex: 1; padding: 10px 0; text-decoration: none; font-weight: bold; font-size: 0.85rem; border-radius: 5px; transition: 0.3s; text-align: center; cursor: pointer; }
+
+        .btn-watch { color: #ff4500; border: 1px solid #ff4500; background: transparent; }
+        .btn-watch:hover { background: rgba(255, 69, 0, 0.1); }
+
+        .btn-book { background: #ff4500; color: white; border: none; }
+        .btn-book:hover { background: #e63e00; }
+
+        /* Modal Background */
+        .trailer-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
+        .modal-content { position: relative; width: 80%; max-width: 900px; aspect-ratio: 16/9; }
+        .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff4500; border-radius: 8px; }
+        .close-modal { position: absolute; top: -45px; right: 0; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-    <header class="navbar">
-        <nav>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/movies">Movies</a></li>
-                <li><a href="/categories" class="active">Categories</a></li>
-                <li><a href="/about">About</a></li>
-            </ul>
-        </nav>
-        <div class="auth-buttons">
-            <span class="user-greeting">Hi, {{ name | default('Dyn', true) }}!</span>
-            <div class="user-avatar"></div>
-        </div>
-    </header>
+<header class="navbar">
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/movies">Movies</a></li>
+            <li><a href="/categories" class="active">Categories</a></li>
+            <li><a href="/about">About</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="/admin" style="color: #ff4500; font-weight: bold; border: 1px solid #ff4500; padding: 2px 8px; border-radius: 4px;">Dashboard</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="auth-buttons">
+        <span style="color: #00d4ff; font-weight: bold; font-size: 1.1rem;">Hi, {{ name }}!</span>
+        <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+    </div>
+</header>
 
-    <main class="movies-section">
-        <h1 style="color: #ff4500; margin-bottom: 20px;">Movie Categories</h1>
+<main class="movies-section">
+    <h1 style="color: #ff4500; margin-bottom: 20px;">Movie Categories</h1>
 
-        <div class="tabs">
-            <span class="active" onclick="filterGenre('all')">All</span>
-            <span onclick="filterGenre('sci-fi')">Sci-Fi</span>
-            <span onclick="filterGenre('horror')">Horror</span>
-            <span onclick="filterGenre('animation')">Animation</span>
-        </div>
+    <div class="tabs">
+        <span id="tab-all" class="active" onclick="filterGenre('all')">All</span>
+        <span id="tab-sci-fi" onclick="filterGenre('sci-fi')">Sci-Fi</span>
+        <span id="tab-horror" onclick="filterGenre('horror')">Horror</span>
+        <span id="tab-animation" onclick="filterGenre('animation')">Animation</span>
+        <span id="tab-action" onclick="filterGenre('action')">Action</span>
+    </div>
 
-        <div class="movie-grid" id="category-grid">
-            <div class="movie-card" data-genre="sci-fi">
-                <img src="{{ url_for('static', filename='avatar1.jpg') }}" alt="Avatar">
-                <h3>Avatar: Fire and Ash</h3>
-                <a href="#" class="watch-link">Watch Trailer</a>
-            </div>
+    <div class="movie-grid" id="category-grid">
+        {% for movie in movies %}
+        <div class="movie-card" data-genre="{{ movie.genre | lower | trim }}">
+            <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+            <h3>{{ movie.title }}</h3>
 
-            <div class="movie-card" data-genre="horror">
-                <img src="{{ url_for('static', filename='28_YearsLater.jpg') }}" alt="28 Years Later">
-                <h3>28 Years Later: The Bone Temple</h3>
-                <a href="#" class="watch-link">Watch Trailer</a>
-            </div>
+            <div class="btn-group">
+                <button class="btn-watch" onclick="openTrailer('{{ movie.trailer_link.replace('watch?v=', 'embed/') }}')">Watch Trailer</button>
 
-            <div class="movie-card" data-genre="animation">
-                <img src="{{ url_for('static', filename='spongebob.jpg') }}" alt="Spongebob">
-                <h3>The SpongeBob Movie</h3>
-                <a href="#" class="watch-link">Watch Trailer</a>
-            </div>
-
-            <div class="movie-card" data-genre="horror">
-                <img src="{{ url_for('static', filename='silentHill.jpg') }}" alt="Silent Hill">
-                <h3>Return to Silent Hill</h3>
-                <a href="#" class="watch-link">Watch Trailer</a>
+                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-book">Book Ticket</a>
             </div>
         </div>
-    </main>
+        {% else %}
+        <p style="color: #888;">No movies uploaded yet.</p>
+        {% endfor %}
+    </div>
+</main>
 
-    <script>
-        function filterGenre(genre) {
-            const cards = document.querySelectorAll('.movie-card');
-            const tabs = document.querySelectorAll('.tabs span');
+<div id="trailerModal" class="trailer-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeTrailer()">&times;</span>
+        <iframe id="trailerVideo" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+</div>
 
-            // I-update ang active tab style
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-                if(tab.innerText.toLowerCase() === genre) tab.classList.add('active');
-                if(genre === 'all' && tab.innerText === 'All') tab.classList.add('active');
-            });
+<script>
+    function filterGenre(genre) {
+        const cards = document.querySelectorAll('.movie-card');
+        const tabs = document.querySelectorAll('.tabs span');
 
-            // I-filter ang mga cards
-            cards.forEach(card => {
-                if (genre === 'all' || card.getAttribute('data-genre') === genre) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-    </script>
+        // Update Tabs Active Class
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + genre).classList.add('active');
+
+        // Filter Logic
+        cards.forEach(card => {
+            const cardGenre = card.getAttribute('data-genre').toLowerCase();
+            if (genre === 'all' || cardGenre === genre) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Modal Functions
+    function openTrailer(link) {
+    const modal = document.getElementById('trailerModal');
+    const video = document.getElementById('trailerVideo');
+
+    let embedUrl = link;
+
+    // 1. Kon ang link kay standard (watch?v=), i-convert sa embed format
+    if (link.includes("watch?v=")) {
+        embedUrl = link.replace("watch?v=", "embed/");
+    }
+    // 2. Kon ang link kay short link (youtu.be/), i-convert gihapon
+    else if (link.includes("youtu.be/")) {
+        embedUrl = link.replace("youtu.be/", "youtube.com/embed/");
+    }
+
+    // Siguroha nga kuhaon ang mga extra parameters sama sa &t= o &list=
+    embedUrl = embedUrl.split("&")[0];
+
+    video.src = embedUrl + "?autoplay=1";
+    modal.style.display = 'flex';
+}
+</script>
+
 </body>
 </html>

@@ -2,89 +2,248 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Cinemiqu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Cinemique</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 60px; background-color: #333;
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .nav-center {
+            display: flex; gap: 40px;
+            position: absolute; left: 50%; transform: translateX(-50%);
+        }
+
+        .nav-center a {
+            text-decoration: none; color: white;
+            font-weight: bold; font-size: 1.1rem; transition: 0.3s;
+        }
+
+        .nav-center a:hover, .nav-center a.active { color: #ff4500; }
+
+        .logout-btn {
+            background-color: #555; color: white;
+            padding: 8px 18px; border-radius: 5px;
+            text-decoration: none; font-weight: bold; transition: 0.3s;
+        }
+        .logout-btn:hover { background-color: #ff4500; }
+
+        .container {
+            max-width: 1100px; margin: 40px auto; padding: 0 20px;
+        }
+
+        /* STATS CARDS */
+        .admin-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 25px; margin-bottom: 50px;
+        }
+
+        .stat-box {
+            background: #252525; padding: 30px;
+            border-radius: 12px; border-left: 6px solid #ff4500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .stat-box h3 { font-size: 2.5rem; margin: 0; color: #ff4500; }
+        .stat-box p { margin: 5px 0 0; color: #888; text-transform: uppercase; font-weight: bold; }
+
+        /* UPLOAD CARD */
+        .upload-card {
+            background: #222; padding: 40px;
+            border-radius: 15px; border: 1px solid #333;
+            margin-bottom: 50px;
+        }
+
+        .upload-card h2 { color: #ff4500; margin: 0 0 30px 0; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #bbb; font-size: 0.9rem; }
+
+        input[type="text"], select {
+            width: 100%; padding: 14px;
+            background: #2a2a2a; color: white;
+            border: 1px solid #444; border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        /* CUSTOM FILE UPLOAD - */
+        .custom-file-upload { position: relative; width: 100%; }
+        .custom-file-upload input[type="file"] {
+            position: absolute; left: 0; top: 0; opacity: 0;
+            width: 100%; height: 100%; cursor: pointer; z-index: 2;
+        }
+        .file-label {
+            display: block; padding: 18px; background: #2a2a2a; color: #888;
+            border: 2px dashed #444; border-radius: 8px; text-align: center; transition: 0.3s;
+        }
+        .custom-file-upload:hover .file-label { border-color: #ff4500; color: white; }
+
+        .btn-submit {
+            background: #ff4500; color: white; width: 100%; padding: 16px;
+            border: none; border-radius: 6px; font-size: 1.1rem;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-submit:hover { background: #e63e00; transform: translateY(-2px); }
+
+        /* TABLE */
+        .modern-table { width: 100%; border-collapse: collapse; background: #222; border-radius: 10px; overflow: hidden; }
+        .modern-table th { background: #333; padding: 15px; text-align: left; color: #ff4500; }
+        .modern-table td { padding: 15px; border-bottom: 1px solid #333; }
+
+        .status-badge {
+            padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            color: #00ff88; border: 1px solid #00ff88;
+        }
+    </style>
 </head>
-<body class="admin-body">
+<body>
 
-    <header class="navbar">
-        <nav>
-            <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="/movies">Movies</a></li>
-                <li><a href="/admin" class="active">Dashboard</a></li>
-            </ul>
-        </nav>
-        <div class="auth-buttons">
-            <span class="user-greeting" style="color: #00d4ff; font-weight: bold; margin-right: 15px;">
-                Hi, {{ name }}!
-            </span>
-            <a href="/logout" class="btn btn-trailer">Logout</a>
+   <header class="navbar">
+    <h2 style="color: #ff4500; margin: 0; letter-spacing: 2px;">CINEMIQUE</h2>
+    <nav class="nav-center">
+       <a href="/admin" class="active">Dashboard</a>
+        <a href="/admin/movies">Manage Movies</a>
+        <a href="{{ url_for('home') }}" target="_blank">View Site</a>
+    </nav>
+    <div class="nav-right">
+        <span style="color: #00d4ff; font-weight: bold;">Hi, {{ name }}!</span>
+        <a href="/logout" class="logout-btn" style="margin-left: 20px;">Logout</a>
+    </div>
+</header>
+
+    <div class="container">
+        <div class="admin-stats">
+            <div class="stat-box">
+                <h3>{{ movies|length }}</h3>
+                <p>Total Movies</p>
+            </div>
+            <div class="stat-box">
+                <h3>6</h3>
+                <p>Active Users</p>
+            </div>
+            <div class="stat-box">
+                <h3 style="color: #00ff88;">Live</h3>
+                <p>System Status</p>
+            </div>
         </div>
-    </header>
 
-    <section class="admin-form-container" style="max-width: 800px; margin: 40px auto; background: #222; padding: 30px; border-radius: 10px; border: 1px solid #444;">
-        <h2 style="color: #ff4500; margin-bottom: 20px;">Upload New Movie</h2>
+      <section class="upload-card">
+    <h2 style="color: #ff4500; margin-bottom: 30px;">Upload New Movie</h2>
+    <form action="/add_movie" method="POST" enctype="multipart/form-data">
 
-        <form action="/add_movie" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
 
-            <input type="text" name="title" placeholder="Movie Title (e.g. Avatar: Fire and Ash)" required style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
-
-            <div style="text-align: left;">
-                <label style="color: #ccc; font-size: 0.9rem; display: block; margin-bottom: 8px;">Select Movie Poster:</label>
-                <input type="file" name="image_file" id="imageInput" accept="image/*" required style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 5px; cursor: pointer;">
-
-                <div id="preview-container" style="margin-top: 15px; display: none; text-align: center;">
-                    <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 5px;">Image Preview:</p>
-                    <img id="imagePreview" src="#" alt="Preview" style="max-height: 200px; border-radius: 8px; border: 2px solid #ff4500;">
-                </div>
+            <div class="form-group">
+                <label>Movie Title</label>
+                <input type="text" name="title" placeholder="e.g. 28 Years Later" required>
             </div>
 
-            <select name="status" style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
-                <option value="Now Showing">Now Showing</option>
-                <option value="Coming Soon">Coming Soon</option>
-            </select>
+            <div class="form-group">
+                <label>Movie Genre</label>
+                <select name="genre" required>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Animation">Animation</option>
+                    <option value="Action">Action</option>
+                </select>
+            </div>
 
-            <input type="text" name="trailer" placeholder="YouTube Link (Embed URL or Link)" required style="padding: 12px; background: #333; color: white; border: 1px solid #555; border-radius: 5px;">
+            <div class="form-group">
+                <label>Cinema Name</label>
+                <input type="text" name="cinema" placeholder="e.g. SM City Cinema 1" required>
+            </div>
 
-            <button type="submit" class="btn-orange-block" style="background: #ff4500; color: white; padding: 15px; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s;">
-                🚀 Upload Movie
-            </button>
-        </form>
-    </section>
+            <div class="form-group">
+                <label>Show Dates (e.g. Feb 3 - Feb 8)</label>
+                <input type="text" name="show_date" placeholder="e.g. Feb 5, 2024" required>
+            </div>
 
-    <section class="movie-list" style="max-width: 900px; margin: 40px auto; padding-bottom: 50px;">
-        <h2 style="color: white; border-bottom: 2px solid #ff4500; padding-bottom: 10px;">Current Movie List</h2>
-        <table style="width: 100%; margin-top: 20px; border-collapse: collapse; background: #222; color: white;">
-            <thead>
-                <tr style="background: #ff4500;">
-                    <th style="padding: 15px; text-align: left;">Title</th>
-                    <th style="padding: 15px; text-align: center;">Status</th>
-                    <th style="padding: 15px; text-align: center;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for movie in movies %}
-                <tr style="border-bottom: 1px solid #444;">
-                    <td style="padding: 15px;">{{ movie.title }}</td>
-                    <td style="text-align: center; padding: 15px;">{{ movie.status }}</td>
-                    <td style="text-align: center; padding: 15px;">
-                        <a href="/delete_movie/{{ movie.id }}" style="color: #ff4d4d; text-decoration: none; font-weight: bold; padding: 5px 10px; border: 1px solid #ff4d4d; border-radius: 4px;" onclick="return confirm('Sigurado ka i-delete ni nga salida?')">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+            <div class="form-group">
+                <label>Showtimes (Separate with comma)</label>
+                <input type="text" name="showtimes" placeholder="e.g. 2:30 PM, 4:45 PM, 7:00 PM" required>
+            </div>
+
+            <div class="form-group">
+                <label>Listing Status</label>
+                <select name="status">
+                    <option value="Now Showing">Now Showing</option>
+                    <option value="Coming Soon">Coming Soon</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label>YouTube Link (Embed URL)</label>
+                <input type="text" name="trailer" placeholder="https://www.youtube.com/embed/..." required>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Movie Description / Plot Summary</label>
+                <textarea name="description" rows="4"
+                    style="width: 100%; background: #2a2a2a; color: white; border: 1px solid #444; border-radius: 6px; padding: 14px; box-sizing: border-box; font-family: inherit;"
+                    placeholder="Write a brief summary of the movie..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label>Movie Poster</label>
+            <div class="custom-file-upload">
+                <label for="imageInput" class="file-label" id="file-label-text">📁 Click to choose or drag poster here...</label>
+                <input type="file" name="image_file" id="imageInput" accept="image/*" required onchange="displayFileName(this, 'file-label-text')">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit" style="margin-top: 20px;">Upload Movie</button>
+    </form>
+</section>
+
+        <section class="table-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="color: #ff4500; margin: 0;">Recent Movie Inventory</h2>
+                <a href="/admin/movies" style="color: #00d4ff; text-decoration: none; font-size: 0.9rem;">View All Movies →</a>
+            </div>
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies[:5] %}
+                    <tr>
+                        <td><strong>{{ movie.title }}</strong></td>
+                        <td><span class="status-badge">{{ movie.status }}</span></td>
+                        <td style="text-align: right;">
+                            <a href="/admin/movies" style="color: #888; text-decoration: none; font-size: 0.8rem; border: 1px solid #444; padding: 4px 8px; border-radius: 4px;">Edit in Library</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
 
     <script>
-        document.getElementById('imageInput').onchange = function (evt) {
-            const [file] = this.files;
-            if (file) {
-                const preview = document.getElementById('imagePreview');
-                const container = document.getElementById('preview-container');
-                preview.src = URL.createObjectURL(file);
-                container.style.display = 'block';
+        function displayFileName(input, labelId) {
+            const label = document.getElementById(labelId);
+            if (input.files.length > 0) {
+                // Update label text inig pili og file
+                label.innerText = "✅ " + input.files[0].name;
+                label.style.borderColor = "#ff4500";
+                label.style.color = "white";
             }
         }
     </script>
