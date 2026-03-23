@@ -2,102 +2,357 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ movie.title }} - Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        body { background-color: #121212; color: white; margin: 0; }
-        .booking-wrapper { max-width: 1000px; margin: 40px auto; padding: 20px; }
-
-        /* Header Section */
-        .movie-header { display: flex; gap: 30px; align-items: flex-start; margin-bottom: 40px; }
-        .poster-img { width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
-        .movie-info h1 { font-size: 2.8rem; margin: 0; color: #fff; }
-        .badge { background: #ff4500; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
-        .genre-text { color: #888; margin: 10px 0; font-size: 1.1rem; }
-
-        /* Date Selection */
-        .section-title { font-size: 1.4rem; color: #ff4500; margin: 30px 0 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .date-container { display: flex; gap: 15px; margin-bottom: 30px; }
-        .date-card {
-            background: #1e1e1e; border: 1px solid #333; padding: 15px;
-            border-radius: 8px; text-align: center; min-width: 60px; cursor: pointer; transition: 0.3s;
-        }
-        .date-card.active { background: #ff4500; border-color: #ff4500; }
-        .date-card small { display: block; text-transform: uppercase; font-size: 0.7rem; color: #aaa; }
-        .date-card.active small { color: white; }
-
-        /* Cinema & Showtimes */
-        .cinema-box { background: #1e1e1e; padding: 25px; border-radius: 12px; border: 1px solid #333; }
-        .cinema-name { font-size: 1.3rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .cinema-loc { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
-
-        .time-grid { display: flex; flex-wrap: wrap; gap: 15px; }
-        .time-btn {
-            background: transparent; border: 1px solid #ff4500; color: #ff4500;
-            padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .time-btn:hover { background: #ff4500; color: white; }
+        body { margin: 0; background: linear-gradient(180deg, #0d0d0d 0%, #171717 100%); color: white; }
+        .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(14, 14, 14, 0.96); border-bottom: 1px solid #292929; }
+        .page { max-width: 1280px; margin: 0 auto; padding: 34px 22px 60px; }
+        .hero { display: grid; grid-template-columns: 320px 1fr; gap: 28px; margin-bottom: 24px; padding: 28px; background: linear-gradient(135deg, rgba(255, 91, 46, 0.16), transparent 35%), linear-gradient(180deg, #1b1b1b, #151515); }
+        .poster { width: 100%; border-radius: 24px; object-fit: cover; box-shadow: 0 24px 54px rgba(0, 0, 0, 0.34); }
+        .hero-copy { display: grid; gap: 16px; align-content: start; }
+        .movie-title { margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); line-height: 1.05; }
+        .summary { color: #c4c4c4; line-height: 1.7; max-width: 760px; }
+        .details-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start; }
+        .panel { padding: 26px; }
+        .panel h2 { margin: 0 0 14px; color: #ff5b2e; }
+        .status-pill { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.9rem; font-weight: 700; }
+        .status-now { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+        .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
+        .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
+        .status-archived { color: #d3d3d3; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.14); }
+        .showtime-group { padding: 18px; border-radius: 16px; background: #222; border: 1px solid #303030; }
+        .showtime-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+        .showtime-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .time-btn { min-width: 160px; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255, 91, 46, 0.22); background: rgba(255, 255, 255, 0.03); color: #f5f5f5; cursor: pointer; text-align: left; transition: 0.2s ease; }
+        .time-btn small { display: block; color: #a8a8a8; margin-top: 4px; }
+        .time-btn.active { background: linear-gradient(135deg, rgba(255, 91, 46, 0.24), rgba(255, 135, 82, 0.14)); border-color: rgba(255, 165, 131, 0.38); box-shadow: 0 14px 26px rgba(255, 91, 46, 0.16); }
+        .time-btn:disabled { opacity: 0.62; cursor: not-allowed; box-shadow: none; }
+        .screen-label { margin-bottom: 14px; padding: 12px 16px; border-radius: 999px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: #d9d9d9; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.85rem; }
+        .seat-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+        .seat-btn { min-height: 48px; border-radius: 12px; border: 1px solid #3a3a3a; background: #262626; color: white; font-weight: 700; cursor: pointer; transition: 0.18s ease; }
+        .seat-btn.available:hover { border-color: rgba(255, 165, 131, 0.42); transform: translateY(-1px); }
+        .seat-btn.selected { background: linear-gradient(135deg, #ff5b2e, #ff8752); border-color: rgba(255, 200, 170, 0.55); }
+        .seat-btn.booked { background: rgba(255, 107, 107, 0.15); border-color: rgba(255, 107, 107, 0.32); color: #ffb6b6; cursor: not-allowed; }
+        .seat-btn.disabled { opacity: 0.46; cursor: not-allowed; }
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 0; }
+        .legend span { display: inline-flex; align-items: center; gap: 8px; color: #b9b9b9; font-size: 0.9rem; }
+        .legend strong { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+        .selection-box { padding: 22px; border-radius: 18px; background: rgba(255, 91, 46, 0.08); border: 1px solid rgba(255, 91, 46, 0.22); }
+        .summary-list { display: grid; gap: 12px; margin: 18px 0; color: #d4d4d4; }
+        .summary-item { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .summary-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .helper { min-height: 20px; color: #ffb6a0; font-size: 0.92rem; }
+        .related-grid { display: grid; gap: 14px; }
+        .related-card { display: grid; grid-template-columns: 80px 1fr; gap: 14px; padding: 14px; border-radius: 16px; background: #222; border: 1px solid #2d2d2d; text-decoration: none; color: white; }
+        .related-card img { width: 80px; height: 110px; object-fit: cover; border-radius: 12px; }
+        .trailer-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { position: relative; width: min(920px, 100%); aspect-ratio: 16 / 9; }
+        .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff5b2e; border-radius: 16px; }
+        .close-modal { position: absolute; top: -44px; right: 0; color: white; font-size: 40px; cursor: pointer; }
+        @media (max-width: 1080px) { .hero, .details-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 760px) { .navbar { padding: 18px 20px; flex-direction: column; gap: 12px; } .seat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     </style>
 </head>
 <body>
-
 <header class="navbar">
     <nav>
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/movies">Back to Movies</a></li>
+            <li><a href="/movies" class="active">Movies</a></li>
+            <li><a href="/categories">Categories</a></li>
+            <li><a href="/about">About</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="/my-bookings">My Bookings</a></li>
+            {% endif %}
         </ul>
     </nav>
-    <div class="auth-buttons"><span style="color: #00d4ff;">Hi, {{ name }}!</span></div>
+    <div class="auth-buttons" style="position: static;">
+        <span class="user-greeting">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
+    </div>
 </header>
 
-<div class="booking-wrapper">
-    <div class="movie-header">
-        <img src="{{ url_for('static', filename=movie.image) }}" class="poster-img">
-        <div class="movie-info">
-            <span class="badge">PG-13</span>
-            <h1>{{ movie.title }}</h1>
-            <p class="genre-text">{{ movie.genre }}</p>
-            <p style="color: #bbb; line-height: 1.6; max-width: 600px;">{{ movie.description }}</p>
-        </div>
-    </div>
+<main class="page">
+    {% include '_flash_messages.html' %}
+    {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
 
-    <h3 class="section-title">Select Date</h3>
-    <div class="date-container">
-        <div class="date-card active">
-            <small>Mar</small><strong>03</strong>
-        </div>
-        <div class="date-card">
-            <small>Mar</small><strong>04</strong>
-        </div>
-        <div class="date-card">
-            <small>Mar</small><strong>05</strong>
-        </div>
-    </div>
+    <section class="hero section-card">
+        <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}" class="poster">
+        <div class="hero-copy">
+            <div class="chip-row">
+                <span class="status-pill {{ status_class }}">{{ movie.status }}</span>
+                <span class="chip">{{ movie.genre }}</span>
+                <span class="chip">{{ movie.runtime_minutes or 120 }} mins</span>
+                {% if movie.is_featured %}
+                <span class="badge-featured">Featured {{ format_month_label(movie.featured_month) }}</span>
+                {% endif %}
+            </div>
 
-    <div class="cinema-box">
-        <div class="cinema-name">{{ movie.cinema_name }}</div>
-        <div class="cinema-loc">📍 Scheduled on: {{ movie.show_date }}</div>
+            <h1 class="movie-title">{{ movie.title }}</h1>
+            <p class="summary">{{ movie.description or 'No description available yet.' }}</p>
 
-        <div class="time-grid">
-            {% if movie.showtimes %}
-                {% for time in movie.showtimes.split(',') %}
-                <button class="time-btn" onclick="bookNow('{{ time.strip() }}')">
-                    {{ time.strip() }}
-                </button>
-                {% endfor %}
-            {% else %}
-                <p style="color: #888;">No showtimes available for this cinema.</p>
-            {% endif %}
+            <div class="chip-row">
+                <span class="chip">Cinema: {{ movie.cinema_name or 'TBA' }}</span>
+                <span class="chip">Default Hall: {{ movie.hall_name or 'Screen 1' }}</span>
+                <span class="chip">Primary Date: {{ format_display_date(movie.show_date) if movie.show_date else 'TBA' }}</span>
+                <span class="chip">{{ showtime_groups|length }} scheduled day{% if showtime_groups|length != 1 %}s{% endif %}</span>
+            </div>
+
+            <div class="hero-actions">
+                <button class="btn-watch btn-ghost btn-lg" type="button" onclick='openTrailer({{ movie.trailer_link|tojson }})'>Watch Trailer</button>
+                {% if session.get('role') != 'admin' %}
+                <a href="{{ url_for('booking_history_page') }}" class="btn-secondary btn-ghost btn-lg">Open My Bookings</a>
+                {% endif %}
+                <a href="{{ url_for('movies_page') }}" class="btn-secondary btn-ghost btn-lg">Back to Movies</a>
+            </div>
+
+            <section class="section-card" style="padding: 18px;">
+                <h2 style="margin: 0 0 14px; color: #ff5b2e;">Cast and Crew</h2>
+                <div style="margin-bottom: 14px;">
+                    <strong style="display: block; margin-bottom: 8px;">Actors</strong>
+                    <div class="chip-row">
+                        {% for actor in (movie.actors or 'TBA').split(',') %}
+                        <span class="chip">{{ actor.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <strong style="display: block; margin-bottom: 8px;">Directors</strong>
+                    <div class="chip-row">
+                        {% for director in (movie.directors or 'TBA').split(',') %}
+                        <span class="chip">{{ director.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
         </div>
+    </section>
+
+    <section class="details-grid">
+        <div style="display: grid; gap: 24px;">
+            <section class="panel section-card">
+                <h2>Choose Showtime</h2>
+                <p style="color: #b7b7b7; line-height: 1.6; margin-bottom: 18px;">Select a schedule from the dedicated showtimes table, then choose your seats below.</p>
+                {% if showtime_groups %}
+                <div class="schedule-grid">
+                    {% for group in showtime_groups %}
+                    <div class="showtime-group">
+                        <div class="showtime-head">
+                            <strong>{{ group.display_date }}</strong>
+                            <span style="color: #9c9c9c;">{{ group.entries|length }} showtime{% if group.entries|length != 1 %}s{% endif %}</span>
+                        </div>
+                        <div class="showtime-buttons">
+                            {% for entry in group.entries %}
+                            <button class="time-btn" type="button" data-showtime-id="{{ entry.id }}" {% if movie.status != 'Now Showing' %}disabled{% endif %}>
+                                <strong>{{ entry.display_time }}</strong>
+                                <small>{{ entry.hall_name or 'Screen 1' }} | {{ entry.available_seats }} seats left</small>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">No showtimes available yet for this movie.</div>
+                {% endif %}
+            </section>
+
+            <section class="panel section-card">
+                <h2>Seat Selection</h2>
+                <p style="color: #b7b7b7; line-height: 1.6; margin-bottom: 18px;">Pick the same number of seats as your selected ticket quantity. Booked seats are locked automatically.</p>
+                <div class="screen-label">Screen This Way</div>
+                <div class="seat-grid">
+                    {% for seat in seat_labels %}
+                    <button class="seat-btn disabled" type="button" data-seat="{{ seat }}">{{ seat }}</button>
+                    {% endfor %}
+                </div>
+                <div class="legend">
+                    <span><strong style="background: #262626; border: 1px solid #3a3a3a;"></strong> Available</span>
+                    <span><strong style="background: linear-gradient(135deg, #ff5b2e, #ff8752);"></strong> Selected</span>
+                    <span><strong style="background: rgba(255, 107, 107, 0.2); border: 1px solid rgba(255, 107, 107, 0.32);"></strong> Booked</span>
+                </div>
+            </section>
+        </div>
+
+        <aside style="display: grid; gap: 24px;">
+            <section class="panel section-card">
+                <h2>Booking Summary</h2>
+                <div class="selection-box">
+                    {% if movie.status == 'Now Showing' and showtime_groups %}
+                    <form id="bookingForm" action="{{ url_for('create_booking') }}" method="POST" style="display: grid; gap: 16px;">
+                        <input type="hidden" name="showtime_id" id="showtimeIdField">
+                        <input type="hidden" name="selected_seats" id="selectedSeatsField">
+                        <div class="form-group" style="display: grid; gap: 8px;">
+                            <label for="ticketQuantity" style="color: #dfdfdf;">Ticket Quantity</label>
+                            <select id="ticketQuantity" name="ticket_quantity" class="search-select">
+                                {% for quantity in range(1, 7) %}
+                                <option value="{{ quantity }}">{{ quantity }} ticket{% if quantity != 1 %}s{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="summary-list">
+                            <div class="summary-item"><span style="color: #a9a9a9;">Selected schedule</span><strong id="selectedSchedule">Choose a showtime to continue.</strong></div>
+                            <div class="summary-item"><span style="color: #a9a9a9;">Selected seats</span><strong id="selectedSeatsPreview">No seats selected yet.</strong></div>
+                            <div class="summary-item"><span style="color: #a9a9a9;">Availability</span><strong id="availabilityText">Select a showtime to view available seats.</strong></div>
+                            {% if ticket_price_display %}
+                            <div class="summary-item"><span style="color: #a9a9a9;">Ticket price</span><strong>{{ ticket_price_display }} each</strong></div>
+                            {% endif %}
+                        </div>
+                        <div id="bookingHelper" class="helper"></div>
+                        <button id="confirmButton" class="confirm-btn btn-primary" type="submit" data-loading-text="Redirecting to PayMongo..." disabled>Proceed to PayMongo Checkout</button>
+                    </form>
+                    {% elif movie.status == 'Coming Soon' %}
+                    <div class="summary-list">
+                        <div class="summary-item"><span style="color: #a9a9a9;">Booking status</span><strong>Bookings are not open yet for this title.</strong></div>
+                        <div class="summary-item"><span style="color: #a9a9a9;">What you can do now</span><strong>Review the movie details and watch the trailer while waiting for release.</strong></div>
+                    </div>
+                    {% elif movie.status == 'Ended' %}
+                    <div class="summary-list">
+                        <div class="summary-item"><span style="color: #a9a9a9;">Screening status</span><strong>This movie has already ended its run.</strong></div>
+                        <div class="summary-item"><span style="color: #a9a9a9;">Availability</span><strong>Schedule preview remains visible for admin and history reference.</strong></div>
+                    </div>
+                    {% else %}
+                    <div class="summary-list">
+                        <div class="summary-item"><span style="color: #a9a9a9;">Movie status</span><strong>This title is currently archived and not available for booking.</strong></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="panel section-card">
+                <h2>Related Movies</h2>
+                <div class="related-grid">
+                    {% for related in related_movies %}
+                    <a class="related-card" href="{{ url_for('movie_details', movie_id=related.id) }}">
+                        <img src="{{ url_for('static', filename=related.image) }}" alt="{{ related.title }}">
+                        <div><strong>{{ related.title }}</strong><div style="color: #afafaf; margin-top: 8px;">{{ related.status }}</div></div>
+                    </a>
+                    {% else %}
+                    <div class="empty-state">No related movies available right now.</div>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+    </section>
+</main>
+
+<div id="trailerModal" class="trailer-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeTrailer()">&times;</span>
+        <iframe id="trailerVideo" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 </div>
 
 <script>
-    function bookNow(time) {
-        alert("Booking for {{ movie.title }} at " + time + " is successful! 🍿\nProceed to payment counter.");
-    }
-</script>
+    const showtimeLookup = {{ showtime_lookup|tojson }};
+    const showtimeButtons = document.querySelectorAll("[data-showtime-id]");
+    const seatButtons = document.querySelectorAll("[data-seat]");
+    const ticketQuantity = document.getElementById("ticketQuantity");
+    const selectedSchedule = document.getElementById("selectedSchedule");
+    const selectedSeatsPreview = document.getElementById("selectedSeatsPreview");
+    const availabilityText = document.getElementById("availabilityText");
+    const bookingHelper = document.getElementById("bookingHelper");
+    const confirmButton = document.getElementById("confirmButton");
+    const showtimeIdField = document.getElementById("showtimeIdField");
+    const selectedSeatsField = document.getElementById("selectedSeatsField");
+    const bookingForm = document.getElementById("bookingForm");
+    let activeShowtimeId = null;
+    let selectedSeats = [];
 
+    function getTicketLimit() { return ticketQuantity ? Number(ticketQuantity.value || 1) : 1; }
+    function setHelper(message) { if (bookingHelper) { bookingHelper.textContent = message; } }
+
+    function refreshSeatGrid() {
+        const lookup = activeShowtimeId ? showtimeLookup[String(activeShowtimeId)] : null;
+        const bookedSeats = new Set((lookup && lookup.booked_seats) || []);
+        seatButtons.forEach((button) => {
+            const seat = button.dataset.seat;
+            button.classList.remove("selected", "booked", "available", "disabled");
+            button.disabled = false;
+            if (!lookup) { button.classList.add("disabled"); button.disabled = true; return; }
+            if (bookedSeats.has(seat)) { button.classList.add("booked"); button.disabled = true; return; }
+            button.classList.add(selectedSeats.includes(seat) ? "selected" : "available");
+        });
+    }
+
+    function refreshSummary() {
+        const lookup = activeShowtimeId ? showtimeLookup[String(activeShowtimeId)] : null;
+        const limit = getTicketLimit();
+        if (selectedSeatsField) { selectedSeatsField.value = selectedSeats.join(", "); }
+        if (showtimeIdField) { showtimeIdField.value = lookup ? lookup.id : ""; }
+        if (selectedSchedule) { selectedSchedule.textContent = lookup ? lookup.date + " | " + lookup.time + " | " + lookup.hall_name : "Choose a showtime to continue."; }
+        if (selectedSeatsPreview) { selectedSeatsPreview.textContent = selectedSeats.length ? selectedSeats.join(", ") : "No seats selected yet."; }
+        if (availabilityText) { availabilityText.textContent = lookup ? lookup.available_seats + " seats left | " + lookup.occupancy_percent + "% occupied" : "Select a showtime to view available seats."; }
+        if (confirmButton) { confirmButton.disabled = !(lookup && selectedSeats.length === limit); }
+    }
+
+    function activateShowtime(showtimeId) {
+        activeShowtimeId = String(showtimeId);
+        selectedSeats = [];
+        setHelper("");
+        showtimeButtons.forEach((button) => { button.classList.toggle("active", button.dataset.showtimeId === String(showtimeId)); });
+        refreshSeatGrid();
+        refreshSummary();
+    }
+
+    showtimeButtons.forEach((button) => {
+        button.addEventListener("click", () => activateShowtime(button.dataset.showtimeId));
+    });
+
+    seatButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            if (!activeShowtimeId || button.disabled) { return; }
+            const seat = button.dataset.seat;
+            const limit = getTicketLimit();
+            const existingIndex = selectedSeats.indexOf(seat);
+            if (existingIndex >= 0) { selectedSeats.splice(existingIndex, 1); setHelper(""); }
+            else if (selectedSeats.length >= limit) { setHelper("Selected seats must match the ticket quantity."); }
+            else { selectedSeats.push(seat); setHelper(""); }
+            refreshSeatGrid();
+            refreshSummary();
+        });
+    });
+
+    if (ticketQuantity) {
+        ticketQuantity.addEventListener("change", () => {
+            const limit = getTicketLimit();
+            if (selectedSeats.length > limit) {
+                selectedSeats = selectedSeats.slice(0, limit);
+                setHelper("Seat selection was trimmed to match the new ticket quantity.");
+            } else { setHelper(""); }
+            refreshSeatGrid();
+            refreshSummary();
+        });
+    }
+
+    if (bookingForm) {
+        bookingForm.addEventListener("submit", (event) => {
+            const limit = getTicketLimit();
+            if (!activeShowtimeId) { event.preventDefault(); setHelper("Please choose a showtime first."); return; }
+            if (selectedSeats.length !== limit) { event.preventDefault(); setHelper("Please select exactly " + limit + " seat" + (limit === 1 ? "" : "s") + "."); }
+        });
+    }
+
+    if (showtimeButtons.length && bookingForm) { activateShowtime(showtimeButtons[0].dataset.showtimeId); }
+
+    function openTrailer(link) {
+        const modal = document.getElementById("trailerModal");
+        const video = document.getElementById("trailerVideo");
+        let embedUrl = link;
+        if (link.includes("watch?v=")) { embedUrl = link.replace("watch?v=", "embed/"); }
+        else if (link.includes("youtu.be/")) { embedUrl = link.replace("youtu.be/", "youtube.com/embed/"); }
+        embedUrl = embedUrl.split("&")[0];
+        video.src = embedUrl + "?autoplay=1";
+        modal.style.display = "flex";
+    }
+
+    window.openTrailer = openTrailer;
+</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

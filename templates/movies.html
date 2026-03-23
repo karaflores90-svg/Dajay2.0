@@ -2,82 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .movies-section { padding: 50px; text-align: center; background-color: #1a1a1a; color: white; min-height: 80vh; }
-        .tabs { margin-bottom: 30px; font-size: 1.5rem; }
-        .tabs span { margin: 0 20px; cursor: pointer; color: #888; padding-bottom: 5px; transition: 0.3s; }
-        .tabs .active { color: #ff4500; border-bottom: 4px solid #ff4500; }
-
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .movie-card {
-            background: #222;
-            padding: 15px;
-            border-radius: 10px;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #333;
-        }
-
-        .movie-card:hover { transform: translateY(-5px); border: 1px solid #ff4500; }
-        .movie-card img { width: 100%; height: 350px; object-fit: cover; border-radius: 5px; }
-        .movie-card h3 { margin: 15px 0 10px; font-size: 1.2rem; flex-grow: 1; text-align: left; color: #fff; }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-watch, .btn-book {
-            flex: 1; padding: 10px 0; text-decoration: none; font-weight: bold; font-size: 0.85rem;
-            border-radius: 5px; transition: 0.3s; text-align: center; cursor: pointer;
-        }
-
-        .btn-watch { color: #ff4500; border: 1px solid #ff4500; background: transparent; }
-        .btn-watch:hover { background: rgba(255, 69, 0, 0.1); }
-        .btn-book { background: #ff4500; color: white; border: none; }
-        .btn-book:hover { background: #e63e00; }
-
-        /* Modal Background */
-        .trailer-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Modal Content */
-        .modal-content {
-            position: relative;
-            width: 80%;
-            max-width: 900px;
-            aspect-ratio: 16/9;
-        }
-
-        .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff4500; border-radius: 8px; }
-
-        .close-modal {
-            position: absolute;
-            top: -45px;
-            right: 0;
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(17, 17, 17, 0.95); border-bottom: 1px solid #282828; }
+        .page { min-height: calc(100vh - 84px); padding: 34px 22px 56px; background: radial-gradient(circle at top right, rgba(255, 69, 0, 0.15), transparent 28%), linear-gradient(180deg, #111 0%, #181818 100%); }
+        .page-inner { max-width: 1280px; margin: 0 auto; }
+        .hero { padding: 28px; margin-bottom: 24px; }
+        .hero h1 { margin: 12px 0 10px; font-size: 2.3rem; }
+        .featured-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .featured-card { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 16px; text-decoration: none; color: white; }
+        .featured-card img { width: 92px; height: 128px; object-fit: cover; border-radius: 12px; }
+        .search-panel { padding: 20px; margin-bottom: 24px; }
+        .tabs { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tabs span { cursor: pointer; padding: 11px 16px; border-radius: 999px; background: #1f1f1f; border: 1px solid #2f2f2f; color: #a2a2a2; transition: 0.25s ease; font-weight: 700; }
+        .tabs span.active { color: white; background: #ff5b2e; border-color: #ff5b2e; }
+        .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .movie-card { overflow: hidden; border-radius: 18px; border: 1px solid #303030; background: #1a1a1a; display: flex; flex-direction: column; }
+        .movie-link { text-decoration: none; color: white; }
+        .movie-card img { width: 100%; height: 360px; object-fit: cover; }
+        .movie-card .content { padding: 18px; display: grid; gap: 12px; flex: 1; }
+        .movie-card h3 { margin: 0; font-size: 1.2rem; }
+        .movie-card p { margin: 0; color: #aeaeae; line-height: 1.5; }
+        .status-pill { display: inline-flex; align-items: center; padding: 7px 11px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.84rem; font-weight: 700; }
+        .status-now { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+        .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
+        .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
+        .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-watch, .btn-book { flex: 1; }
+        .trailer-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { position: relative; width: min(920px, 100%); aspect-ratio: 16 / 9; }
+        .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff5b2e; border-radius: 14px; }
+        .close-modal { position: absolute; top: -44px; right: 0; color: white; font-size: 40px; cursor: pointer; }
+        @media (max-width: 1080px) { .movie-grid, .featured-strip { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 720px) { .navbar { padding: 18px 20px; flex-direction: column; gap: 12px; } .movie-grid, .featured-strip { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
 <header class="navbar">
     <nav>
         <ul class="nav-links">
@@ -86,49 +49,101 @@
             <li><a href="/categories">Categories</a></li>
             <li><a href="/about">About</a></li>
             {% if session.get('role') == 'admin' %}
-            <li><a href="/admin" style="color: #ff4500; font-weight: bold; border: 1px solid #ff4500; padding: 2px 8px; border-radius: 4px;">Dashboard</a></li>
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="/my-bookings">My Bookings</a></li>
             {% endif %}
         </ul>
     </nav>
-    <div class="auth-buttons">
-        <span style="color: #00d4ff; font-weight: bold; font-size: 1.1rem;">Hi, {{ name }}!</span>
-        <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+    <div class="auth-buttons" style="position: static;">
+        <span style="color: #00d4ff; font-weight: bold; font-size: 1.05rem;">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
     </div>
 </header>
 
-<main class="movies-section">
-    <div class="tabs">
-        <span id="tab-now" class="active" onclick="switchTab('now')">Now Showing</span>
-        <span id="tab-soon" onclick="switchTab('soon')">Coming Soon</span>
-    </div>
+<main class="page">
+    <div class="page-inner">
+        <section class="hero section-card">
+            <span class="badge-featured">Movie Library</span>
+            <h1>Browse movies, check statuses, and open showtime and seat selection in one flow.</h1>
+            <p style="color: #b8b8b8; line-height: 1.6; max-width: 780px;">Search across titles, genres, cinema names, hall names, actors, and directors. Newly added movies now appear first, while archived titles stay hidden from the public view.</p>
+        </section>
 
-    <div id="grid-now" class="movie-grid">
-        {% for movie in movies %}
-            {% if movie.status == 'Now Showing' %}
-            <div class="movie-card">
+        {% if featured_movies %}
+        <section class="featured-strip">
+            {% for movie in featured_movies[:3] %}
+            <a class="featured-card section-card" href="{{ url_for('movie_details', movie_id=movie.id) }}">
                 <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
-                <h3>{{ movie.title }}</h3>
-                <div class="btn-group">
-                    <button class="btn-watch" onclick="openTrailer('{{ movie.trailer_link.replace('watch?v=', 'embed/') }}')">Watch Trailer</button>
-                    <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-book">Book Ticket</a>
+                <div>
+                    <span class="badge-featured" style="margin-bottom: 10px;">Featured</span>
+                    <strong>{{ movie.title }}</strong>
+                    <p style="margin: 10px 0 0; color: #acacac;">{{ movie.genre }} | {{ movie.status }}</p>
                 </div>
+            </a>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <section class="search-panel section-card">
+            <form class="search-bar" action="{{ url_for('movies_page') }}" method="GET">
+                <input class="search-input" type="text" name="q" value="{{ search_query }}" placeholder="Search movies, actors, directors, genre, cinema, or hall...">
+                <button type="submit" class="btn-submit btn-primary" style="width: auto; min-width: 150px;" data-loading-text="Searching...">Search Movies</button>
+                {% if search_query %}
+                <a href="{{ url_for('movies_page') }}" class="btn-secondary btn-ghost">Clear Search</a>
+                {% endif %}
+            </form>
+        </section>
+
+        <div class="tabs">
+            <span id="tab-now" class="active" onclick="switchTab('now')">Now Showing</span>
+            <span id="tab-soon" onclick="switchTab('soon')">Coming Soon</span>
+            <span id="tab-ended" onclick="switchTab('ended')">Ended</span>
+        </div>
+
+        {% for status_name, grid_id in [('Now Showing', 'now'), ('Coming Soon', 'soon'), ('Ended', 'ended')] %}
+        <section id="grid-{{ grid_id }}" class="movie-grid" {% if grid_id != 'now' %}style="display: none;"{% endif %}>
+            {% set ns = namespace(has_items=false) %}
+            {% for movie in movies %}
+                {% if movie.status == status_name %}
+                    {% set ns.has_items = true %}
+                    {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' %}
+                    <article class="movie-card">
+                        <a class="movie-link" href="{{ url_for('movie_details', movie_id=movie.id) }}">
+                            <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+                        </a>
+                        <div class="content">
+                            <div>
+                                <div class="chip-row" style="margin-bottom: 10px;">
+                                    {% if movie.is_featured %}<span class="info-pill">Featured</span>{% endif %}
+                                    <span class="status-pill {{ status_class }}">{{ movie.status }}</span>
+                                    <span class="info-pill">{{ movie.genre }}</span>
+                                    <span class="info-pill">{{ movie.hall_name or 'Screen 1' }}</span>
+                                </div>
+                                <a class="movie-link" href="{{ url_for('movie_details', movie_id=movie.id) }}"><h3>{{ movie.title }}</h3></a>
+                                <p>{{ (movie.description or '')[:120] }}{% if movie.description and movie.description|length > 120 %}...{% endif %}</p>
+                                <div style="margin-top: 12px; color: #a9a9a9; line-height: 1.6;">
+                                    <div>{{ movie.cinema_name or 'Cinema TBA' }}</div>
+                                    <div>{{ movie.schedule_count }} showtimes{% if movie.next_schedule_date %} | Next: {{ format_display_date(movie.next_schedule_date) }}{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="button-row">
+                                <button class="btn-watch btn-ghost" type="button" onclick='openTrailer({{ movie.trailer_link|tojson }})'>Watch Trailer</button>
+                                {% if movie.status == 'Now Showing' %}
+                                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-book btn-primary">Choose Seats</a>
+                                {% else %}
+                                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-secondary btn-ghost">View Details</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endif %}
+            {% endfor %}
+            {% if not ns.has_items %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                {% if search_query %}No {{ status_name|lower }} movies matched "{{ search_query }}".{% else %}No {{ status_name|lower }} movies available.{% endif %}
             </div>
             {% endif %}
-        {% endfor %}
-    </div>
-
-    <div id="grid-soon" class="movie-grid" style="display: none;">
-        {% for movie in movies %}
-            {% if movie.status == 'Coming Soon' %}
-            <div class="movie-card">
-                <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
-                <h3>{{ movie.title }}</h3>
-                <div class="btn-group">
-                    <button class="btn-watch" onclick="openTrailer('{{ movie.trailer_link.replace('watch?v=', 'embed/') }}')">Watch Trailer</button>
-                    <button class="btn-book" style="background: #555; cursor: not-allowed;" disabled>Coming Soon</button>
-                </div>
-            </div>
-            {% endif %}
+        </section>
         {% endfor %}
     </div>
 </main>
@@ -141,50 +156,26 @@
 </div>
 
 <script>
-    // Tab Switching Logic
     function switchTab(type) {
-        const nowGrid = document.getElementById('grid-now');
-        const soonGrid = document.getElementById('grid-soon');
-        const nowTab = document.getElementById('tab-now');
-        const soonTab = document.getElementById('tab-soon');
-
-        if (type === 'now') {
-            nowGrid.style.display = 'grid';
-            soonGrid.style.display = 'none';
-            nowTab.classList.add('active');
-            soonTab.classList.remove('active');
-        } else {
-            nowGrid.style.display = 'none';
-            soonGrid.style.display = 'grid';
-            nowTab.classList.remove('active');
-            soonTab.classList.add('active');
-        }
+        ["now", "soon", "ended"].forEach((value) => {
+            document.getElementById("grid-" + value).style.display = value === type ? "grid" : "none";
+            document.getElementById("tab-" + value).classList.toggle("active", value === type);
+        });
     }
 
-    //
-    // Modal Logic
     function openTrailer(link) {
-    const modal = document.getElementById('trailerModal');
-    const video = document.getElementById('trailerVideo');
-
-    let embedUrl = link;
-
-    // 1. Kon ang link kay standard (watch?v=), i-convert sa embed format
-    if (link.includes("watch?v=")) {
-        embedUrl = link.replace("watch?v=", "embed/");
-    }
-    // 2. Kon ang link kay short link (youtu.be/), i-convert gihapon
-    else if (link.includes("youtu.be/")) {
-        embedUrl = link.replace("youtu.be/", "youtube.com/embed/");
+        const modal = document.getElementById("trailerModal");
+        const video = document.getElementById("trailerVideo");
+        let embedUrl = link;
+        if (link.includes("watch?v=")) { embedUrl = link.replace("watch?v=", "embed/"); }
+        else if (link.includes("youtu.be/")) { embedUrl = link.replace("youtu.be/", "youtube.com/embed/"); }
+        embedUrl = embedUrl.split("&")[0];
+        video.src = embedUrl + "?autoplay=1";
+        modal.style.display = "flex";
     }
 
-    // Siguroha nga kuhaon ang mga extra parameters sama sa &t= o &list=
-    embedUrl = embedUrl.split("&")[0];
-
-    video.src = embedUrl + "?autoplay=1";
-    modal.style.display = 'flex';
-}
+    window.openTrailer = openTrailer;
 </script>
-
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

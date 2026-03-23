@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { margin: 0; background: #111; color: white; }
+        .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(15, 15, 15, 0.96); border-bottom: 1px solid #292929; }
+        .nav-center { display: flex; gap: 26px; align-items: center; }
+        .nav-center a { color: white; text-decoration: none; font-weight: 700; }
+        .nav-center a.active, .nav-center a:hover { color: #ff5b2e; }
+        .page { max-width: 1320px; margin: 0 auto; padding: 34px 22px 60px; }
+        .hero { padding: 28px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(255, 91, 46, 0.16), transparent 40%), linear-gradient(180deg, #1b1b1b, #151515); }
+        .hero h1 { margin: 12px 0 10px; font-size: clamp(2rem, 4vw, 3.2rem); }
+        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 24px; }
+        .summary-card { padding: 22px; }
+        .summary-card strong { display: block; color: #ff5b2e; font-size: 1.95rem; margin-top: 8px; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .panel { padding: 24px; }
+        .panel h2 { margin: 0 0 14px; color: #ff5b2e; }
+        .modern-table { width: 100%; border-collapse: collapse; background: #1a1a1a; overflow: hidden; border-radius: 14px; }
+        .modern-table th, .modern-table td { padding: 14px 16px; border-bottom: 1px solid #2b2b2b; text-align: left; vertical-align: top; }
+        .modern-table th { color: #ff9d7a; text-transform: uppercase; letter-spacing: 0.05rem; font-size: 0.86rem; background: #202020; }
+        .status-select { min-width: 150px; }
+        .status-pill { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.9rem; font-weight: 700; }
+        .status-pending { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
+        .status-paid { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+        .status-cancelled, .status-refunded { color: #ffb6b6; background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.24); }
+        @media (max-width: 1080px) { .report-grid { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 760px) { .navbar { padding: 18px 20px; flex-direction: column; gap: 12px; } .summary-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<header class="navbar">
+    <h2 style="color: #ff5b2e; margin: 0; letter-spacing: 2px;">CINEMIQUE</h2>
+    <nav class="nav-center">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/movies">Manage Movies</a>
+        <a href="/admin/reports" class="active">Reports</a>
+        <a href="/movies" target="_blank">View Site</a>
+    </nav>
+    <div class="auth-buttons" style="position: static;">
+        <span class="user-greeting">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
+    </div>
+</header>
+
+<main class="page">
+    {% include '_flash_messages.html' %}
+    <section class="hero section-card">
+        <span class="badge-featured">Admin Reports</span>
+        <h1>Track bookings, payment states, occupancy, and featured movie performance.</h1>
+        <p style="color: #c2c2c2; line-height: 1.7; max-width: 860px;">These reports summarize activity from the booking, showtime, and movie tables so the admin can monitor demand, update payment status, and see which featured titles are performing best this month.</p>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Today</span><strong>{{ report_data.summary.daily_bookings }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Last 7 Days</span><strong>{{ report_data.summary.weekly_bookings }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Transactions</span><strong>{{ report_data.summary.total_transactions }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Paid</span><strong>{{ report_data.summary.paid_bookings }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Pending</span><strong>{{ report_data.summary.pending_bookings }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Total Value</span><strong>{{ format_php_amount(report_data.summary.total_transaction_value) }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Paid Revenue</span><strong>{{ format_php_amount(report_data.summary.paid_transaction_value) }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Pending Value</span><strong>{{ format_php_amount(report_data.summary.pending_transaction_value) }}</strong></div>
+        <div class="summary-card section-card"><span style="color: #a8a8a8;">Avg Occupancy</span><strong>{{ report_data.summary.average_occupancy }}%</strong></div>
+    </section>
+
+    <section class="report-grid">
+        <div class="panel section-card">
+            <h2>Top Movies</h2>
+            {% if report_data.top_movies %}
+            <table class="modern-table">
+                <thead><tr><th>Movie</th><th>Bookings</th><th>Tickets</th></tr></thead>
+                <tbody>
+                    {% for movie in report_data.top_movies %}
+                    <tr><td>{{ movie.title }}</td><td>{{ movie.booking_count }}</td><td>{{ movie.tickets_sold }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No booking data available yet.</div>
+            {% endif %}
+        </div>
+
+        <div class="panel section-card">
+            <h2>Featured Performance for {{ current_month_label }}</h2>
+            {% if report_data.featured_performance %}
+            <table class="modern-table">
+                <thead><tr><th>Movie</th><th>Bookings</th><th>Tickets</th></tr></thead>
+                <tbody>
+                    {% for movie in report_data.featured_performance %}
+                    <tr><td>{{ movie.title }}</td><td>{{ movie.booking_count }}</td><td>{{ movie.tickets_sold }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No featured bookings recorded for {{ current_month_label }} yet.</div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="panel section-card" style="margin-bottom: 24px;">
+        <h2>Recent Bookings</h2>
+        {% if report_data.recent_bookings %}
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>User</th>
+                    <th>Movie</th>
+                    <th>Schedule</th>
+                    <th>Seats</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in report_data.recent_bookings %}
+                {% set booking_class = 'status-pending' if booking.payment_status == 'Pending' else 'status-paid' if booking.payment_status == 'Paid' else 'status-refunded' if booking.payment_status == 'Refunded' else 'status-cancelled' %}
+                <tr>
+                    <td>{{ booking.booking_reference }}</td>
+                    <td>{{ booking.user_name }}</td>
+                    <td>{{ booking.title }}</td>
+                    <td>{{ booking.display_date }}<br>{{ booking.display_time }}<br>{{ booking.hall_name or 'Screen 1' }}</td>
+                    <td>{{ booking.seats }}</td>
+                    <td>{{ booking.display_amount }}</td>
+                    <td><span class="status-pill {{ booking_class }}">{{ booking.payment_status }}</span></td>
+                    <td>
+                        <form action="{{ url_for('update_booking_payment', booking_id=booking.id) }}" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <select name="payment_status" class="search-select status-select">
+                                {% for status in payment_statuses %}
+                                <option value="{{ status }}" {% if status == booking.payment_status %}selected{% endif %}>{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn-submit btn-primary btn-compact" data-loading-text="Saving...">Save</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No recent bookings available.</div>
+        {% endif %}
+    </section>
+
+    <section class="panel section-card">
+        <h2>Showtime Occupancy Snapshot</h2>
+        {% if report_data.occupancy_rows %}
+        <table class="modern-table">
+            <thead><tr><th>Movie</th><th>Cinema</th><th>Hall</th><th>Date</th><th>Time</th><th>Booked Seats</th><th>Occupancy</th></tr></thead>
+            <tbody>
+                {% for row in report_data.occupancy_rows %}
+                <tr>
+                    <td>{{ row.title }}</td>
+                    <td>{{ row.cinema_name }}</td>
+                    <td>{{ row.hall_name or 'Screen 1' }}</td>
+                    <td>{{ row.display_date }}</td>
+                    <td>{{ row.display_time }}</td>
+                    <td>{{ row.seats_booked }}/{{ total_seat_count }}</td>
+                    <td>{{ row.occupancy_percent }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No showtime occupancy data available yet.</div>
+        {% endif %}
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

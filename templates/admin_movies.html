@@ -4,92 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Movies - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Navbar & Table Styles */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-
-        .modern-table { width: 100%; border-collapse: collapse; background: #222; border-radius: 10px; overflow: hidden; }
-        .modern-table th { background: #333; padding: 15px; text-align: left; color: #ff4500; }
-        .modern-table td { padding: 15px; border-bottom: 1px solid #333; }
-
-        .movie-poster-sm { width: 50px; height: 75px; object-fit: cover; border-radius: 4px; }
-
-        /* Button Styles */
-        .btn-edit {
-            color: #00d4ff;
-            text-decoration: none;
-            margin-right: 15px;
-            border: 1px solid #00d4ff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .btn-edit:hover { background: #00d4ff; color: #1a1a1a; }
-
-        .btn-delete {
-            color: #ff4444;
-            text-decoration: none;
-            border: 1px solid #ff4444;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
+        body { margin: 0; background: #121212; color: white; }
+        .navbar { justify-content: space-between; padding: 18px 42px; border-bottom: 1px solid #292929; background: #171717; }
+        .page { max-width: 1340px; margin: 0 auto; padding: 34px 22px 60px; }
+        .topbar { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 22px; }
+        .topbar h1 { margin: 8px 0 8px; font-size: 2rem; }
+        .search-panel { padding: 22px; margin-bottom: 24px; }
+        .modern-table { width: 100%; border-collapse: collapse; background: #1b1b1b; border-radius: 16px; overflow: hidden; }
+        .modern-table th, .modern-table td { padding: 14px 16px; border-bottom: 1px solid #2a2a2a; text-align: left; vertical-align: top; }
+        .modern-table th { background: #202020; color: #ff946b; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04rem; }
+        .movie-poster-sm { width: 60px; height: 86px; border-radius: 12px; object-fit: cover; }
+        .title-block { display: flex; gap: 14px; align-items: center; }
+        .pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.84rem; font-weight: 700; }
+        .status-live { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+        .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
+        .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
+        .status-archived { color: #d3d3d3; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.14); }
+        .action-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .meta { color: #9f9f9f; font-size: 0.9rem; line-height: 1.5; }
+        @media (max-width: 900px) { .topbar { flex-direction: column; } }
     </style>
 </head>
 <body>
-
 <header class="navbar">
-    <h2 style="color: #ff4500; margin: 0; letter-spacing: 2px;">CINEMIQUE</h2>
-    <nav class="nav-links">
-        <li><a href="/admin">Dashboard</a></li>
-        <li><a href="/admin/movies" class="active">Manage Movies</a></li>
-        <li><a href="{{ url_for('home') }}" target="_blank">View Site</a></li>
+    <h2 style="color: #ff5b2e; margin: 0; letter-spacing: 2px;">CINEMIQUE</h2>
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/admin">Dashboard</a></li>
+            <li><a href="/admin/movies" class="active">Manage Movies</a></li>
+            <li><a href="/admin/reports">Reports</a></li>
+            <li><a href="/movies" target="_blank">View Site</a></li>
+        </ul>
     </nav>
-    <div class="auth-buttons">
+    <div class="auth-buttons" style="position: static;">
         <span class="user-greeting">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
     </div>
 </header>
 
-<div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <h2 style="color: #ff4500;">Movie Library Management</h2>
-    <a href="/admin" class="btn-add">+ Add New Movie</a>
-</div>
+<main class="page">
+    {% include '_flash_messages.html' %}
+    <section class="topbar">
+        <div>
+            <span class="badge-featured">Manage Movie Library</span>
+            <h1>Newest movies appear first.</h1>
+            <p class="meta">Search by title, genre, status, cinema, hall, actors, or directors.</p>
+        </div>
+        <div class="action-links">
+            <a href="/admin" class="btn btn-primary">Add New Movie</a>
+            <a href="/admin/reports" class="btn-secondary btn-ghost">Open Reports</a>
+        </div>
+    </section>
 
+    <section class="search-panel section-card">
+        <form class="search-bar" action="{{ url_for('admin_movies') }}" method="GET">
+            <input class="search-input" type="text" name="q" value="{{ search_query }}" placeholder="Search the movie library...">
+            <button type="submit" class="btn-submit btn-primary" style="width: auto; min-width: 160px;" data-loading-text="Searching...">Search Library</button>
+            {% if search_query %}
+            <a href="{{ url_for('admin_movies') }}" class="btn-secondary btn-ghost">Clear Search</a>
+            {% endif %}
+        </form>
+    </section>
+
+    {% if movies %}
     <table class="modern-table">
         <thead>
             <tr>
-                <th>Poster</th>
-                <th>Title</th>
-                <th>Genre</th>
+                <th>Movie</th>
                 <th>Status</th>
-                <th style="text-align: right;">Actions</th>
+                <th>Hall & Runtime</th>
+                <th>Featured</th>
+                <th>Cast & Crew</th>
+                <th>Schedule</th>
+                <th>Updated</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for movie in movies %}
+            {% set status_class = 'status-live' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
             <tr>
-                <td><img src="{{ url_for('static', filename=movie.image) }}" class="movie-poster-sm"></td>
-                <td><strong>{{ movie.title }}</strong></td>
-                <td><span style="text-transform: capitalize; color: #aaa;">{{ movie.genre }}</span></td>
                 <td>
-                    <span style="color: {{ '#00ff88' if movie.status == 'Now Showing' else '#ffae00' }};">
-                        {{ movie.status }}
-                    </span>
+                    <div class="title-block">
+                        <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}" class="movie-poster-sm">
+                        <div>
+                            <strong>{{ movie.title }}</strong>
+                            <div class="meta">{{ movie.genre }} | {{ movie.cinema_name or 'Cinema TBA' }}</div>
+                        </div>
+                    </div>
                 </td>
-                <td style="text-align: right;">
-                    <a href="/edit_movie_page/{{ movie.id }}" class="btn-edit">Edit Movie</a>
-
-                    <a href="{{ url_for('delete_movie', id=movie.id) }}" class="btn-delete"
-                       onclick="return confirm('Sigurado ka nga i-delete kini?')">Delete</a>
+                <td><span class="pill {{ status_class }}">{{ movie.status }}</span></td>
+                <td>
+                    <div class="meta"><strong>Hall:</strong> {{ movie.hall_name or 'Screen 1' }}</div>
+                    <div class="meta"><strong>Runtime:</strong> {{ movie.runtime_minutes or 120 }} mins</div>
+                </td>
+                <td>
+                    {% if movie.is_featured %}
+                    <span class="pill">{{ format_month_label(movie.featured_month) }}</span>
+                    {% else %}
+                    <span class="meta">Not featured</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="meta"><strong>Actors:</strong> {{ movie.actors or 'TBA' }}</div>
+                    <div class="meta"><strong>Directors:</strong> {{ movie.directors or 'TBA' }}</div>
+                </td>
+                <td>
+                    <div class="meta"><strong>Next:</strong> {{ format_display_date(movie.next_schedule_date) if movie.next_schedule_date else 'No schedule yet' }}</div>
+                    <div class="meta"><strong>Total showtimes:</strong> {{ movie.schedule_count }}</div>
+                </td>
+                <td class="meta">{{ movie.updated_at or movie.created_at or 'N/A' }}</td>
+                <td>
+                    <div class="action-links">
+                        <a href="/edit_movie_page/{{ movie.id }}" class="btn-link edit">Edit</a>
+                        <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-link edit" target="_blank">Preview</a>
+                        <a href="{{ url_for('delete_movie', id=movie.id) }}" class="btn-link delete" onclick="return confirm('Delete this movie?')">Delete</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>
+    {% else %}
+    <div class="empty-state">
+        {% if search_query %}No movies matched your search for "{{ search_query }}".{% else %}No movies uploaded yet.{% endif %}
+    </div>
+    {% endif %}
+</main>
 
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

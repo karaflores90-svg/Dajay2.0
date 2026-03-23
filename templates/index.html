@@ -3,61 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avatar: Fire and Ash Landing Page</title>
+    <title>Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Style para sa username display sa navbar */
-        .user-greeting {
-            color: #00d4ff;
-            margin-right: 15px;
-            font-weight: bold;
-            font-size: 1rem;
+        body {
+            background: #0f0f0f;
+            color: white;
         }
-        .btn-logout {
-            background-color: #e63946 !important;
-            color: white !important;
+
+        .navbar {
+            justify-content: space-between;
+            padding: 20px 44px;
+            background: rgba(15, 15, 15, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .landing-shell {
+            min-height: calc(100vh - 84px);
+            padding: 38px 24px 60px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 69, 0, 0.22), transparent 30%),
+                linear-gradient(180deg, #0d0d0d 0%, #171717 100%);
+        }
+
+        .hero {
+            max-width: 1280px;
+            min-height: 560px;
+            margin: 0 auto 30px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+        }
+
+        .hero-main {
+            padding: 40px;
+            border-radius: 24px;
+            background:
+                linear-gradient(120deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.28)),
+                url('{{ url_for("static", filename=featured_movie.image) if featured_movie else url_for("static", filename="avatar1.jpg") }}') center/cover;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .hero-copy {
+            max-width: 620px;
+        }
+
+        .hero-copy h1 {
+            margin: 16px 0 16px;
+            font-size: clamp(2.3rem, 5vw, 4rem);
+        }
+
+        .hero-copy p {
+            line-height: 1.7;
+            color: #f0f0f0;
+            max-width: 620px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .hero-rail {
+            display: grid;
+            gap: 18px;
+        }
+
+        .rail-card {
+            padding: 22px;
+        }
+
+        .rail-card h3 {
+            margin: 0 0 12px;
+            color: #ff4500;
+        }
+
+        .movie-mini-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .movie-mini {
+            display: grid;
+            grid-template-columns: 74px 1fr;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 14px;
+            background: #202020;
+            border: 1px solid #2e2e2e;
+            text-decoration: none;
+            color: white;
+        }
+
+        .movie-mini img {
+            width: 74px;
+            height: 104px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .spotlight {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .spotlight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .spotlight-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .spotlight-card {
+            overflow: hidden;
+            text-decoration: none;
+            color: white;
+        }
+
+        .spotlight-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .spotlight-card .content {
+            padding: 16px;
+        }
+
+        @media (max-width: 1040px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .spotlight-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 680px) {
+            .navbar {
+                padding: 18px 20px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .spotlight-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-main {
+                padding: 26px;
+                min-height: 430px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <header class="navbar">
-        <nav>
-            <ul class="nav-links">
-                <li><a href="/" class="active">Home</a></li>
-                <li><a href="/movies">Movies</a></li>
-                <li><a href="/categories">Categories</a></li>
-                <li><a href="/about">About</a></li>
-            </ul>
-        </nav>
-
-        <div class="auth-buttons">
-            {% if name %}
-                <span class="user-greeting">Welcome, {{ name }}!</span>
-                <a href="/logout" class="btn btn-signin btn-logout" style="text-decoration: none;">Logout</a>
-            {% else %}
-                <a href="/signup" class="btn btn-signup" style="text-decoration: none;">Sign Up</a>
-                <a href="/signin" class="btn btn-signin" style="text-decoration: none;">Sign In</a>
+<header class="navbar">
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/movies">Movies</a></li>
+            <li><a href="/categories">Categories</a></li>
+            <li><a href="/about">About</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="/my-bookings">My Bookings</a></li>
             {% endif %}
-        </div>
-    </header>
+        </ul>
+    </nav>
+    <div class="auth-buttons" style="position: static;">
+        {% if name %}
+            <span class="user-greeting">Welcome, {{ name }}!</span>
+            <a href="/logout" class="btn btn-danger btn-pill">Logout</a>
+        {% else %}
+            <a href="/signup" class="btn btn-signup btn-pill">Create Account</a>
+            <a href="/signin" class="btn btn-signin btn-ghost btn-pill">Sign In</a>
+        {% endif %}
+    </div>
+</header>
 
-    <main class="hero">
-        <div class="hero-content">
-
-
-            <h1>Avatar: Fire and Ash (2025)</h1>
-            <p>
-                is an epic sci-fi action film directed by James Cameron, following Jake Sully and Neytiri
-                as they navigate grief after Neteyam's death. The family encounters a new, aggressive Na'vi
-                tribe known as the Ash People, led by the fiery Varang, while the RDA human threat continues.
-            </p>
-            <div class="hero-actions">
-               <a href="https://youtu.be/nb_fFj_0rq8?si=bAzxe33dTAoWqcGr" target="_blank" class="btn btn-trailer" style="text-decoration: none; display: inline-block; text-align: center;">Watch Trailer</a>
-                <button class="btn btn-book">Book Ticket</button>
+<main class="landing-shell">
+    <section class="hero">
+        <div class="hero-main">
+            <div class="hero-copy">
+                <span class="badge-featured">Featured for {{ current_month_label }}</span>
+                <h1>{{ featured_movie.title if featured_movie else 'Discover the latest movies on Cinemique' }}</h1>
+                <p>
+                    {% if featured_movie %}
+                    {{ featured_movie.description or 'Featured movie details will appear here once the admin saves a custom description.' }}
+                    {% else %}
+                    Browse the latest showtimes, trailers, and featured releases in one clean movie dashboard.
+                    {% endif %}
+                </p>
+                <div class="chip-row" style="margin-top: 18px;">
+                    {% if featured_movie %}
+                    <span class="chip">{{ featured_movie.genre }}</span>
+                    <span class="chip">{{ featured_movie.status }}</span>
+                    <span class="chip">{{ featured_movie.cinema_name or 'Cinema TBA' }}</span>
+                    {% endif %}
+                </div>
+                <div class="hero-actions">
+                    {% if featured_movie %}
+                        {% if name %}
+                        <a href="{{ url_for('movie_details', movie_id=featured_movie.id) }}" class="btn btn-book btn-primary btn-lg">Open Movie Details</a>
+                        {% else %}
+                        <a href="/signin" class="btn btn-book btn-primary btn-lg">Sign In to Continue</a>
+                        {% endif %}
+                        <a href="/movies" class="btn btn-trailer btn-ghost btn-lg">Browse All Movies</a>
+                    {% else %}
+                    <a href="/movies" class="btn btn-book btn-primary btn-lg">Browse Movies</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </main>
 
+        <aside class="hero-rail">
+            <div class="rail-card section-card">
+                <h3>Featured This Month</h3>
+                <div class="movie-mini-grid">
+                    {% if featured_movies %}
+                        {% for movie in featured_movies[:3] %}
+                        <a class="movie-mini" href="{{ url_for('movie_details', movie_id=movie.id) if name else url_for('signin_page') }}">
+                            <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+                            <div>
+                                <strong>{{ movie.title }}</strong>
+                                <div style="color: #b0b0b0; margin-top: 8px;">{{ movie.genre }} | {{ movie.status }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">No featured movies selected for this month yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="rail-card section-card">
+                <h3>Why Use Cinemique</h3>
+                <div class="chip-row">
+                    <span class="chip">Featured monthly picks</span>
+                    <span class="chip">Custom movie details</span>
+                    <span class="chip">Selectable showtimes</span>
+                    <span class="chip">Admin-managed schedules</span>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="spotlight">
+        <div class="spotlight-header">
+            <div>
+                <h2 style="margin: 0 0 8px; color: #ff4500;">Latest Movie Spotlight</h2>
+                <p style="margin: 0; color: #b7b7b7;">Fresh additions from the movie inventory.</p>
+            </div>
+            <a href="/movies" class="btn-secondary btn-ghost">Explore Movie Library</a>
+        </div>
+
+        <div class="spotlight-grid">
+            {% for movie in spotlight_movies %}
+            <a class="spotlight-card section-card" href="{{ url_for('movie_details', movie_id=movie.id) if name else url_for('signin_page') }}">
+                <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+                <div class="content">
+                    <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;">
+                        <strong>{{ movie.title }}</strong>
+                        {% if movie.is_featured %}
+                        <span class="info-pill">Featured</span>
+                        {% endif %}
+                    </div>
+                    <p style="margin: 10px 0 0; color: #a9a9a9;">{{ movie.genre }} | {{ movie.status }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

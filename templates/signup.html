@@ -2,22 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)),
+                url('{{ url_for("static", filename="background1.jpg") }}') center/cover fixed;
+        }
+
+        .auth-shell {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .auth-card {
+            width: min(450px, 100%);
+            padding: 34px;
+            background: rgba(18, 18, 18, 0.94);
+        }
+
+        .auth-card .search-input:hover {
+            background: #2a2a2a;
+            border-color: #444;
+            box-shadow: none;
+            transform: none;
+        }
+    </style>
 </head>
-<body class="auth-page">
-    <div class="auth-card">
-        <h2>Sign Up</h2>
-        <form action="/signup_process" method="POST">
-            <input type="text" name="name" placeholder="Name" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            <button type="submit" class="btn-orange-block">Sign Up</button>
+<body>
+<main class="auth-shell">
+    <section class="auth-card section-card">
+        {% include '_flash_messages.html' %}
+        <h1 style="margin: 0 0 12px;">Create Account</h1>
+        <p style="color: #b7b7b7; margin-bottom: 22px;">Join Cinemique to open movie details and schedules.</p>
+        <form action="/signup_process" method="POST" style="display: grid; gap: 14px;">
+            <input class="search-input" type="text" name="name" placeholder="Name" required>
+            <input class="search-input" type="email" name="email" placeholder="Email" required>
+            <input class="search-input" type="password" name="password" placeholder="Password" required>
+            <input class="search-input" type="password" name="confirm_password" placeholder="Confirm Password" required>
+            <button type="submit" class="btn-submit btn-primary" data-loading-text="Creating Account...">Create Account</button>
         </form>
-        <div class="auth-footer">
-            Already have an account? <a href="{{ url_for('signin_page') }}">Sign in here.</a>
-        </div>
-    </div>
+        <p style="margin-top: 18px; color: #bdbdbd;">
+            Already have an account? <a href="{{ url_for('signin_page') }}" style="color: #ff8d5e;">Sign in here.</a>
+        </p>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

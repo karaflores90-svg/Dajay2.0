@@ -3,58 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - MovieFlix</title>
+    <title>About - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .navbar {
+            justify-content: space-between;
+            padding: 18px 42px;
+            background: rgba(17, 17, 17, 0.95);
+            border-bottom: 1px solid #272727;
+        }
+
+        .about-shell {
+            min-height: calc(100vh - 84px);
+            padding: 42px 22px 56px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 69, 0, 0.14), transparent 26%),
+                linear-gradient(180deg, #101010 0%, #171717 100%);
+        }
+
+        .about-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 0.85fr;
+            gap: 24px;
+        }
+
+        .panel {
+            padding: 28px;
+        }
+
+        @media (max-width: 920px) {
+            .about-inner {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-
-   <header class="navbar">
+<header class="navbar">
     <nav>
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/movies">Movies</a></li>
             <li><a href="/categories">Categories</a></li>
             <li><a href="/about" class="active">About</a></li>
-
             {% if session.get('role') == 'admin' %}
-            <li><a href="/admin" style="color: #ff4500; font-weight: bold; border: 1px solid #ff4500; padding: 2px 8px; border-radius: 4px;">Dashboard</a></li>
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="/my-bookings">My Bookings</a></li>
             {% endif %}
         </ul>
     </nav>
-   <div class="auth-buttons">
-        <span style="color: #00d4ff; font-weight: bold; font-size: 1.1rem;">Hi, {{ name }}!</span>
-        <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+    <div class="auth-buttons" style="position: static;">
+        <span style="color: #00d4ff; font-weight: bold;">Hi, {{ name or 'Guest' }}!</span>
+        {% if name %}
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
+        {% else %}
+        <a href="/signin" class="btn-secondary btn-ghost">Sign In</a>
+        {% endif %}
     </div>
 </header>
-    <main class="about-container">
-        <section class="about-hero">
-            <h1>About Cinemiq</h1>
-            <p>Your ultimate destination for the latest cinematic experiences.</p>
-        </section>
 
-        <section class="about-content">
-            <div class="about-text">
-                <h2>Our Mission</h2>
-                <p>
-                    MovieFlix was founded with a simple goal: to bring the magic of the big screen
-                    straight to your fingertips. Whether you're looking for the spine-chilling
-                    thrills of <i>28 Years Later</i> or the family-friendly fun of <i>SpongeBob</i>,
-                    we provide the latest updates and trailers for movie enthusiasts worldwide.
-                </p>
-
-                <h2>What We Offer</h2>
-                <ul>
-                    <li>Real-time "Now Showing" movie updates.</li>
-                    <li>Exclusive "Coming Soon" previews and trailers.</li>
-                    <li>Personalized movie watchlists and booking reminders.</li>
-                </ul>
-            </div>
-
-            <div class="about-image">
-                <div class="image-placeholder"></div>
+<main class="about-shell">
+    <div class="about-inner">
+        <section class="panel section-card">
+            <span class="badge-featured">About Cinemique</span>
+            <h1 style="margin: 14px 0 14px; color: #ff4500;">A movie browsing app with booking, seats, and admin-managed scheduling.</h1>
+            <p style="color: #c0c0c0; line-height: 1.7; margin-bottom: 18px;">
+                Cinemique helps users browse featured movies, watch trailers, open richer movie details, choose
+                showtimes, select seats, and review booking history from schedules that admins control in one dashboard.
+            </p>
+            <div class="chip-row">
+                <span class="chip">Featured monthly movies</span>
+                <span class="chip">Custom movie descriptions</span>
+                <span class="chip">Actors and directors</span>
+                <span class="chip">DB-linked showtimes</span>
+                <span class="chip">Seat booking history</span>
             </div>
         </section>
-    </main>
 
+        <section class="panel section-card">
+            <h2 style="margin: 0 0 14px; color: #ff4500;">What changed</h2>
+            <div style="display: grid; gap: 14px; color: #c4c4c4; line-height: 1.6;">
+                <div>Movie pages now show description, actors, directors, selectable showtimes, and seat-based booking flow.</div>
+                <div>The admin side now supports featured movies per month, validation feedback, hall assignment, payment status updates, search, and newest-first ordering.</div>
+                <div>Showtimes are stored in a dedicated table, bookings are tracked with payment states, and reports show occupancy plus top-performing titles.</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

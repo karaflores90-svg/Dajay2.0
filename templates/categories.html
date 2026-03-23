@@ -4,40 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories - Cinemique</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Base Styling */
-        .movies-section { padding: 50px; text-align: center; background-color: #1a1a1a; color: white; min-height: 80vh; }
-        .tabs { margin-bottom: 30px; font-size: 1.2rem; }
-        .tabs span { margin: 0 15px; cursor: pointer; color: #888; padding-bottom: 5px; transition: 0.3s; font-weight: bold; }
-        .tabs .active { color: #ff4500; border-bottom: 4px solid #ff4500; }
+        .navbar {
+            justify-content: space-between;
+            padding: 18px 42px;
+            background: rgba(17, 17, 17, 0.95);
+            border-bottom: 1px solid #272727;
+        }
 
-        /* Grid & Card */
-        .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; }
-        .movie-card { background: #222; padding: 15px; border-radius: 10px; transition: 0.3s; display: flex; flex-direction: column; border: 1px solid #333; }
-        .movie-card:hover { transform: translateY(-5px); border: 1px solid #ff4500; }
-        .movie-card img { width: 100%; height: 350px; object-fit: cover; border-radius: 5px; }
-        .movie-card h3 { margin: 15px 0 10px; font-size: 1.2rem; flex-grow: 1; text-align: left; color: #fff; }
+        .page {
+            min-height: calc(100vh - 84px);
+            padding: 36px 22px 56px;
+            background:
+                radial-gradient(circle at top left, rgba(255, 69, 0, 0.14), transparent 24%),
+                linear-gradient(180deg, #111 0%, #171717 100%);
+        }
 
-        /* Button Group Styling */
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-watch, .btn-book { flex: 1; padding: 10px 0; text-decoration: none; font-weight: bold; font-size: 0.85rem; border-radius: 5px; transition: 0.3s; text-align: center; cursor: pointer; }
+        .page-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
 
-        .btn-watch { color: #ff4500; border: 1px solid #ff4500; background: transparent; }
-        .btn-watch:hover { background: rgba(255, 69, 0, 0.1); }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 22px 0 24px;
+        }
 
-        .btn-book { background: #ff4500; color: white; border: none; }
-        .btn-book:hover { background: #e63e00; }
+        .tabs span {
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: #202020;
+            border: 1px solid #2e2e2e;
+            cursor: pointer;
+            font-weight: 700;
+            color: #a8a8a8;
+        }
 
-        /* Modal Background */
-        .trailer-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
-        .modal-content { position: relative; width: 80%; max-width: 900px; aspect-ratio: 16/9; }
-        .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff4500; border-radius: 8px; }
-        .close-modal { position: absolute; top: -45px; right: 0; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
+        .tabs span.active {
+            background: #ff4500;
+            border-color: #ff4500;
+            color: white;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .movie-card {
+            overflow: hidden;
+            text-decoration: none;
+            color: white;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .movie-card .content {
+            padding: 18px;
+        }
+
+        .trailer-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            position: relative;
+            width: min(920px, 100%);
+            aspect-ratio: 16 / 9;
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            border: 2px solid #ff4500;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 980px) {
+            .movie-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
 <header class="navbar">
     <nav>
         <ul class="nav-links">
@@ -46,42 +128,68 @@
             <li><a href="/categories" class="active">Categories</a></li>
             <li><a href="/about">About</a></li>
             {% if session.get('role') == 'admin' %}
-            <li><a href="/admin" style="color: #ff4500; font-weight: bold; border: 1px solid #ff4500; padding: 2px 8px; border-radius: 4px;">Dashboard</a></li>
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="/my-bookings">My Bookings</a></li>
             {% endif %}
         </ul>
     </nav>
-    <div class="auth-buttons">
-        <span style="color: #00d4ff; font-weight: bold; font-size: 1.1rem;">Hi, {{ name }}!</span>
-        <div style="width: 30px; height: 30px; background: #bbb; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px;"></div>
+    <div class="auth-buttons" style="position: static;">
+        <span style="color: #00d4ff; font-weight: bold;">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
     </div>
 </header>
 
-<main class="movies-section">
-    <h1 style="color: #ff4500; margin-bottom: 20px;">Movie Categories</h1>
+<main class="page">
+    <div class="page-inner">
+        <section class="section-card" style="padding: 26px;">
+            <span class="badge-featured">Category View</span>
+            <h1 style="margin: 14px 0 10px; color: #ff4500;">Movie Categories</h1>
+            <p style="color: #b6b6b6; line-height: 1.6;">
+                Filter movies by genre, then open each title for full description, actors, directors, and showtime selection.
+            </p>
+        </section>
 
-    <div class="tabs">
-        <span id="tab-all" class="active" onclick="filterGenre('all')">All</span>
-        <span id="tab-sci-fi" onclick="filterGenre('sci-fi')">Sci-Fi</span>
-        <span id="tab-horror" onclick="filterGenre('horror')">Horror</span>
-        <span id="tab-animation" onclick="filterGenre('animation')">Animation</span>
-        <span id="tab-action" onclick="filterGenre('action')">Action</span>
-    </div>
-
-    <div class="movie-grid" id="category-grid">
-        {% for movie in movies %}
-        <div class="movie-card" data-genre="{{ movie.genre | lower | trim }}">
-            <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
-            <h3>{{ movie.title }}</h3>
-
-            <div class="btn-group">
-                <button class="btn-watch" onclick="openTrailer('{{ movie.trailer_link.replace('watch?v=', 'embed/') }}')">Watch Trailer</button>
-
-                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-book">Book Ticket</a>
-            </div>
+        <div class="tabs">
+            <span id="tab-all" class="active" onclick="filterGenre('all')">All</span>
+            <span id="tab-sci-fi" onclick="filterGenre('sci-fi')">Sci-Fi</span>
+            <span id="tab-horror" onclick="filterGenre('horror')">Horror</span>
+            <span id="tab-animation" onclick="filterGenre('animation')">Animation</span>
+            <span id="tab-action" onclick="filterGenre('action')">Action</span>
+            <span id="tab-drama" onclick="filterGenre('drama')">Drama</span>
+            <span id="tab-comedy" onclick="filterGenre('comedy')">Comedy</span>
+            <span id="tab-thriller" onclick="filterGenre('thriller')">Thriller</span>
         </div>
-        {% else %}
-        <p style="color: #888;">No movies uploaded yet.</p>
-        {% endfor %}
+
+        <section class="movie-grid" id="category-grid">
+            {% for movie in movies %}
+            <article class="movie-card section-card" data-genre="{{ movie.genre | lower | trim }}">
+                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" style="text-decoration: none; color: white;">
+                    <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+                </a>
+                <div class="content">
+                    <div class="chip-row" style="margin-bottom: 10px;">
+                        <span class="info-pill">{{ movie.genre }}</span>
+                        {% if movie.is_featured %}
+                        <span class="info-pill">Featured</span>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('movie_details', movie_id=movie.id) }}" style="text-decoration: none; color: white;">
+                        <h3 style="margin: 0 0 10px;">{{ movie.title }}</h3>
+                    </a>
+                    <p style="color: #acacac; line-height: 1.5; min-height: 48px;">
+                        {{ (movie.description or '')[:100] }}{% if movie.description and movie.description|length > 100 %}...{% endif %}
+                    </p>
+                    <div class="button-row" style="margin-top: 14px;">
+                        <button class="btn-watch btn-ghost" type="button" onclick='openTrailer({{ movie.trailer_link|tojson }})'>Watch Trailer</button>
+                        <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-book btn-primary">Open Details</a>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-state" style="grid-column: 1 / -1;">No movies uploaded yet.</div>
+            {% endfor %}
+        </section>
     </div>
 </main>
 
@@ -97,44 +205,31 @@
         const cards = document.querySelectorAll('.movie-card');
         const tabs = document.querySelectorAll('.tabs span');
 
-        // Update Tabs Active Class
-        tabs.forEach(tab => tab.classList.remove('active'));
+        tabs.forEach((tab) => tab.classList.remove('active'));
         document.getElementById('tab-' + genre).classList.add('active');
 
-        // Filter Logic
-        cards.forEach(card => {
-            const cardGenre = card.getAttribute('data-genre').toLowerCase();
-            if (genre === 'all' || cardGenre === genre) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+        cards.forEach((card) => {
+            const cardGenre = card.getAttribute('data-genre');
+            card.style.display = genre === 'all' || cardGenre === genre ? 'block' : 'none';
         });
     }
 
-    // Modal Functions
     function openTrailer(link) {
-    const modal = document.getElementById('trailerModal');
-    const video = document.getElementById('trailerVideo');
+        const modal = document.getElementById('trailerModal');
+        const video = document.getElementById('trailerVideo');
+        let embedUrl = link;
 
-    let embedUrl = link;
+        if (link.includes('watch?v=')) {
+            embedUrl = link.replace('watch?v=', 'embed/');
+        } else if (link.includes('youtu.be/')) {
+            embedUrl = link.replace('youtu.be/', 'youtube.com/embed/');
+        }
 
-    // 1. Kon ang link kay standard (watch?v=), i-convert sa embed format
-    if (link.includes("watch?v=")) {
-        embedUrl = link.replace("watch?v=", "embed/");
+        embedUrl = embedUrl.split('&')[0];
+        video.src = embedUrl + '?autoplay=1';
+        modal.style.display = 'flex';
     }
-    // 2. Kon ang link kay short link (youtu.be/), i-convert gihapon
-    else if (link.includes("youtu.be/")) {
-        embedUrl = link.replace("youtu.be/", "youtube.com/embed/");
-    }
-
-    // Siguroha nga kuhaon ang mga extra parameters sama sa &t= o &list=
-    embedUrl = embedUrl.split("&")[0];
-
-    video.src = embedUrl + "?autoplay=1";
-    modal.style.display = 'flex';
-}
 </script>
-
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
