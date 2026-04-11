@@ -152,6 +152,174 @@
             }
         }
 
+        /* ========== CAROUSEL STYLES ========== */
+        .carousel-section {
+            max-width: 1280px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .carousel-header {
+            margin-bottom: 20px;
+        }
+
+        .carousel-header h2 {
+            margin: 0 0 8px;
+            color: #ff4500;
+            font-size: 1.8rem;
+        }
+
+        .carousel-header p {
+            margin: 0;
+            color: #b7b7b7;
+        }
+
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            background: #1a1a1a;
+            border-radius: 16px;
+        }
+
+        .carousel-wrapper {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(255, 69, 0, 0.2));
+            display: flex;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        .carousel-content {
+            max-width: 500px;
+        }
+
+        .carousel-content h3 {
+            font-size: 2rem;
+            margin: 0 0 12px;
+            color: white;
+        }
+
+        .carousel-content p {
+            color: #e0e0e0;
+            margin: 0 0 20px;
+            line-height: 1.5;
+        }
+
+        .carousel-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(255, 69, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 20px;
+        }
+
+        .carousel-nav.next {
+            right: 20px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .carousel-dot.active {
+            background: #ff4500;
+            width: 32px;
+            border-radius: 6px;
+        }
+
+        .carousel-dot:hover {
+            background: rgba(255, 69, 0, 0.7);
+        }
+
+        @media (max-width: 1040px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .spotlight-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .carousel-slide {
+                height: 300px;
+            }
+
+            .carousel-overlay {
+                padding: 30px;
+            }
+
+            .carousel-content h3 {
+                font-size: 1.5rem;
+            }
+        }
+
         @media (max-width: 680px) {
             .navbar {
                 padding: 18px 20px;
@@ -166,6 +334,36 @@
             .hero-main {
                 padding: 26px;
                 min-height: 430px;
+            }
+
+            .carousel-slide {
+                height: 250px;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .carousel-nav.prev {
+                left: 10px;
+            }
+
+            .carousel-nav.next {
+                right: 10px;
+            }
+
+            .carousel-overlay {
+                padding: 20px;
+            }
+
+            .carousel-content h3 {
+                font-size: 1.2rem;
+            }
+
+            .carousel-content p {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -263,6 +461,55 @@
         </aside>
     </section>
 
+    <!-- CAROUSEL SECTION -->
+    <section class="carousel-section">
+        <div class="carousel-header">
+            <h2>Trending Now</h2>
+            <p>Popular movies from our collection</p>
+        </div>
+
+        {% if all_movies %}
+        <div class="carousel-container">
+            <div class="carousel-wrapper" id="carouselWrapper">
+                {% for movie in all_movies[:12] %}
+                <div class="carousel-slide">
+                    <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}">
+                    <div class="carousel-overlay">
+                        <div class="carousel-content">
+                            <h3>{{ movie.title }}</h3>
+                            <p>{{ movie.description[:100] if movie.description else movie.genre }}</p>
+                            <div class="carousel-buttons">
+                                {% if name %}
+                                <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn btn-primary">Watch Now</a>
+                                {% else %}
+                                <a href="/signin" class="btn btn-primary">Sign In</a>
+                                {% endif %}
+                                <a href="/movies" class="btn btn-ghost">More Movies</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button class="carousel-nav prev" id="prevBtn" onclick="moveCarousel(-1)">❮</button>
+            <button class="carousel-nav next" id="nextBtn" onclick="moveCarousel(1)">❯</button>
+
+            <!-- Dots -->
+            <div class="carousel-dots" id="carouselDots">
+                {% for movie in all_movies[:12] %}
+                <div class="carousel-dot {% if loop.first %}active{% endif %}" onclick="currentSlide({{ loop.index0 }})"></div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div style="padding: 40px; text-align: center; color: #b7b7b7;">
+            <p>No movies available at the moment. Check back soon!</p>
+        </div>
+        {% endif %}
+    </section>
+
     <section class="spotlight">
         <div class="spotlight-header">
             <div>
@@ -290,6 +537,104 @@
         </div>
     </section>
 </main>
+
+<script>
+    // Carousel Variables
+    let currentSlideIndex = 0;
+    const wrapper = document.getElementById('carouselWrapper');
+    const dots = document.querySelectorAll('.carousel-dot');
+    const totalSlides = dots.length;
+
+    // Auto-advance carousel every 6 seconds
+    let autoSlideTimer = setInterval(() => {
+        moveCarousel(1);
+    }, 6000);
+
+    // Function to move carousel
+    function moveCarousel(direction) {
+        clearInterval(autoSlideTimer);
+        
+        currentSlideIndex += direction;
+        
+        // Loop around
+        if (currentSlideIndex >= totalSlides) {
+            currentSlideIndex = 0;
+        } else if (currentSlideIndex < 0) {
+            currentSlideIndex = totalSlides - 1;
+        }
+        
+        updateCarousel();
+        
+        // Restart auto-slide
+        autoSlideTimer = setInterval(() => {
+            moveCarousel(1);
+        }, 6000);
+    }
+
+    // Function to go to specific slide
+    function currentSlide(index) {
+        clearInterval(autoSlideTimer);
+        currentSlideIndex = index;
+        updateCarousel();
+        
+        // Restart auto-slide
+        autoSlideTimer = setInterval(() => {
+            moveCarousel(1);
+        }, 6000);
+    }
+
+    // Update carousel position and active dot
+    function updateCarousel() {
+        if (!wrapper) return;
+        
+        const offset = -currentSlideIndex * 100;
+        wrapper.style.transform = `translateX(${offset}%)`;
+        
+        // Update active dot
+        dots.forEach((dot, index) => {
+            if (index === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            moveCarousel(-1);
+        } else if (e.key === 'ArrowRight') {
+            moveCarousel(1);
+        }
+    });
+
+    // Touch/swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const carouselContainer = document.querySelector('.carousel-container');
+    if (carouselContainer) {
+        carouselContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+        
+        carouselContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+    }
+
+    function handleSwipe() {
+        if (touchEndX < touchStartX - 50) {
+            // Swiped left - move to next
+            moveCarousel(1);
+        } else if (touchEndX > touchStartX + 50) {
+            // Swiped right - move to prev
+            moveCarousel(-1);
+        }
+    }
+</script>
 
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>

@@ -1501,6 +1501,7 @@ def home():
     featured_movie = get_home_featured_movie(conn)
     spotlight_movies = get_movies(conn, public_view=True)[:4]
     featured_movies = get_featured_movies(conn, current_month_value(), public_view=True)
+    all_movies = get_movies(conn, public_view=True)
     conn.close()
 
     return render_template(
@@ -1509,6 +1510,8 @@ def home():
         featured_movie=featured_movie,
         spotlight_movies=spotlight_movies,
         featured_movies=featured_movies,
+        all_movies=all_movies,
+        current_month_label=format_month_label(current_month_value()),
     )
 
 
