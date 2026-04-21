@@ -1,145 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Movie - Cinemique</title>
-    <script>document.documentElement.classList.add('app-loading');</script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+      document.documentElement.classList.add("app-loading");
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <style>
-        body { margin: 0; background: #111; color: white; }
-        .page { max-width: 1180px; margin: 0 auto; padding: 42px 22px 60px; }
-        .header-row { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 22px; }
-        .header-row h1 { margin: 10px 0 10px; font-size: 2.2rem; }
-        .layout { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 24px; }
-        .panel { padding: 28px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { display: grid; gap: 8px; }
-        .form-group label { color: #d4d4d4; font-size: 0.94rem; }
-        .full-row { grid-column: 1 / -1; }
-        .button-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-        .schedule-panel h2, .edit-panel h2 { margin: 0 0 16px; color: #ff5b2e; }
-        .schedule-entry { padding: 18px; border-radius: 14px; background: #202020; border: 1px solid #2d2d2d; }
-        .schedule-entry h3 { margin: 0 0 12px; }
-        .status-pill { display: inline-flex; align-items: center; padding: 7px 11px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.86rem; font-weight: 700; }
-        .status-now { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
-        .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
-        .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
-        .status-archived { color: #d3d3d3; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.14); }
-        @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
-        @media (max-width: 720px) { .form-grid { grid-template-columns: 1fr; } .header-row { flex-direction: column; } }
+      body {
+        margin: 0;
+        background: #111;
+        color: white;
+      }
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 42px 22px 60px;
+      }
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-start;
+        margin-bottom: 22px;
+      }
+      .header-row h1 {
+        margin: 10px 0 10px;
+        font-size: 2.2rem;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 24px;
+      }
+      .panel {
+        padding: 28px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .form-group {
+        display: grid;
+        gap: 8px;
+      }
+      .form-group label {
+        color: #d4d4d4;
+        font-size: 0.94rem;
+      }
+      .full-row {
+        grid-column: 1 / -1;
+      }
+      .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .schedule-panel h2,
+      .edit-panel h2 {
+        margin: 0 0 16px;
+        color: #ff5b2e;
+      }
+      .schedule-entry {
+        padding: 18px;
+        border-radius: 14px;
+        background: #202020;
+        border: 1px solid #2d2d2d;
+      }
+      .schedule-entry h3 {
+        margin: 0 0 12px;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 11px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+      .status-now {
+        color: #84f0ab;
+        background: rgba(0, 255, 136, 0.1);
+        border-color: rgba(0, 255, 136, 0.2);
+      }
+      .status-soon {
+        color: #ffd38f;
+        background: rgba(255, 180, 0, 0.12);
+        border-color: rgba(255, 180, 0, 0.22);
+      }
+      .status-ended {
+        color: #9fd6ff;
+        background: rgba(85, 165, 255, 0.12);
+        border-color: rgba(85, 165, 255, 0.22);
+      }
+      .status-archived {
+        color: #d3d3d3;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.14);
+      }
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 720px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .header-row {
+          flex-direction: column;
+        }
+      }
     </style>
-</head>
-<body>
-<main class="page">
-    {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
-    <div class="header-row">
+  </head>
+  <body>
+    <main class="page">
+      {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
+      <div class="header-row">
         <div>
-            <span class="badge-featured">Edit Movie</span>
-            <h1>{{ movie.title }}</h1>
-            <p style="color: #a1a1a1; max-width: 760px;">Saving this form updates the movie record in the DBMS, refreshes the primary schedule summary, and keeps hall and runtime values aligned with the showtime table.</p>
+          <span class="badge-featured">Edit Movie</span>
+          <h1>{{ movie.title }}</h1>
+          <p style="color: #a1a1a1; max-width: 760px">
+            Saving this form updates the movie record in the DBMS, refreshes the
+            primary schedule summary, and keeps hall and runtime values aligned
+            with the showtime table.
+          </p>
         </div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="/admin/movies" class="btn-secondary btn-ghost">Back to Library</a>
-            <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="btn-secondary btn-ghost" target="_blank">Preview Page</a>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+          <a href="/admin/movies" class="btn-secondary btn-ghost">
+            Back to Library
+          </a>
+          <a
+            href="{{ url_for('movie_details', movie_id=movie.id) }}"
+            class="btn-secondary btn-ghost"
+            target="_blank"
+          >
+            Preview Page
+          </a>
         </div>
-    </div>
+      </div>
 
-    {% include '_flash_messages.html' %}
+      {% include '_flash_messages.html' %}
 
-    <div class="layout">
+      <div class="layout">
         <section class="panel section-card edit-panel">
-            <h2>Edit Movie Details</h2>
-            <form action="{{ url_for('edit_movie', id=movie.id) }}" method="POST" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group full-row"><label>Movie Title</label><input class="search-input" type="text" name="title" value="{{ movie.title }}" required></div>
+          <h2>Edit Movie Details</h2>
+          <form
+            action="{{ url_for('edit_movie', id=movie.id) }}"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <div class="form-grid">
+              <div class="form-group full-row">
+                <label>Movie Title</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="title"
+                  value="{{ movie.title }}"
+                  required
+                />
+              </div>
 
-                    <div class="form-group">
-                        <label>Genre</label>
-                        <select class="search-select" name="genre" required>
-                            {% set normalized_genre = (movie.genre or '')|lower %}
-                            <option value="Sci-Fi" {% if normalized_genre == 'sci-fi' %}selected{% endif %}>Sci-Fi</option>
-                            <option value="Horror" {% if normalized_genre == 'horror' %}selected{% endif %}>Horror</option>
-                            <option value="Animation" {% if normalized_genre == 'animation' %}selected{% endif %}>Animation</option>
-                            <option value="Action" {% if normalized_genre == 'action' %}selected{% endif %}>Action</option>
-                            <option value="Drama" {% if normalized_genre == 'drama' %}selected{% endif %}>Drama</option>
-                            <option value="Comedy" {% if normalized_genre == 'comedy' %}selected{% endif %}>Comedy</option>
-                            <option value="Thriller" {% if normalized_genre == 'thriller' %}selected{% endif %}>Thriller</option>
-                        </select>
-                    </div>
+              <div class="form-group">
+                <label>Genre</label>
+                <select class="search-select" name="genre" required>
+                  {% set normalized_genre = (movie.genre or '')|lower %}
+                  <option value="Sci-Fi" {% if normalized_genre == 'sci-fi' %}selected{% endif %}>
+                    Sci-Fi
+                  </option>
+                  <option value="Horror" {% if normalized_genre == 'horror' %}selected{% endif %}>
+                    Horror
+                  </option>
+                  <option
+                    value="Animation"
+                    {% if normalized_genre == 'animation' %}selected{% endif %}
+                  >
+                    Animation
+                  </option>
+                  <option value="Action" {% if normalized_genre == 'action' %}selected{% endif %}>
+                    Action
+                  </option>
+                  <option value="Drama" {% if normalized_genre == 'drama' %}selected{% endif %}>
+                    Drama
+                  </option>
+                  <option value="Comedy" {% if normalized_genre == 'comedy' %}selected{% endif %}>
+                    Comedy
+                  </option>
+                  <option value="Thriller" {{ movie.title }}0selected{{ movie.title }}1>
+                    Thriller
+                  </option>
+                </select>
+              </div>
 
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select class="search-select" name="status" required>
-                            <option value="Now Showing" {% if movie.status == 'Now Showing' %}selected{% endif %}>Now Showing</option>
-                            <option value="Coming Soon" {% if movie.status == 'Coming Soon' %}selected{% endif %}>Coming Soon</option>
-                            <option value="Ended" {% if movie.status == 'Ended' %}selected{% endif %}>Ended</option>
-                            <option value="Archived" {% if movie.status == 'Archived' %}selected{% endif %}>Archived</option>
-                        </select>
-                    </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select class="search-select" name="status" required>
+                  <option
+                    value="Now Showing"
+                    {{ movie.title }}2selected{{ movie.title }}3
+                  >
+                    Now Showing
+                  </option>
+                  <option
+                    value="Coming Soon"
+                    {{ movie.title }}4selected{{ movie.title }}5
+                  >
+                    Coming Soon
+                  </option>
+                  <option value="Ended" {{ movie.title }}6selected{{ movie.title }}7>
+                    Ended
+                  </option>
+                  <option value="Archived" {{ movie.title }}8selected{{ movie.title }}9>
+                    Archived
+                  </option>
+                </select>
+              </div>
 
-                    <div class="form-group"><label>Cinema Name</label><input class="search-input" type="text" name="cinema" value="{{ movie.cinema_name or '' }}" required></div>
-                    <div class="form-group"><label>Hall / Screen</label><input class="search-input" type="text" name="hall_name" value="{{ movie.hall_name or 'Screen 1' }}" required></div>
-                    <div class="form-group"><label>Runtime (minutes)</label><input class="search-input" type="number" name="runtime_minutes" min="30" step="1" value="{{ movie.runtime_minutes or 120 }}" required></div>
-                    <div class="form-group"><label>Primary Show Date</label><input class="search-date" type="date" name="show_date" value="{{ movie.show_date or '' }}"></div>
-                    <div class="form-group full-row"><label>Primary Showtimes</label><input class="search-input" type="text" name="showtimes" value="{{ movie.showtimes or '' }}"></div>
-                    <div class="form-group"><label>Actors</label><input class="search-input" type="text" name="actors" value="{{ movie.actors or '' }}" required></div>
-                    <div class="form-group"><label>Directors</label><input class="search-input" type="text" name="directors" value="{{ movie.directors or '' }}" required></div>
-                    <div class="form-group full-row"><label>Trailer Link</label><input class="search-input" type="text" name="trailer" value="{{ movie.trailer_link }}" required></div>
-                    <div class="form-group full-row"><label>Movie Description</label><textarea class="search-textarea" name="description" required>{{ movie.description or '' }}</textarea></div>
-                    <div class="form-group"><label>Featured Month</label><input class="search-date" type="month" name="featured_month" value="{{ movie.featured_month or current_month_value }}"></div>
-                    <div class="form-group"><label>Update Poster</label><input class="search-input" type="file" name="image_file" accept="image/*"></div>
-                    <div class="form-group full-row">
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" name="is_featured" {% if movie.is_featured %}checked{% endif %}>
-                            Set as featured movie
-                        </label>
-                    </div>
-                </div>
+              <div class="form-group">
+                <label>Cinema Name</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="cinema"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}0"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Hall / Screen</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="hall_name"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}1"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Runtime (minutes)</label>
+                <input
+                  class="search-input"
+                  type="number"
+                  name="runtime_minutes"
+                  min="30"
+                  step="1"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}2"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Primary Show Date</label>
+                <input
+                  class="search-date"
+                  type="date"
+                  name="show_date"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}3"
+                />
+              </div>
+              <div class="form-group full-row">
+                <label>Primary Showtimes</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="showtimes"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}4"
+                />
+              </div>
+              <div class="form-group">
+                <label>Actors</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="actors"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}5"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Directors</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="directors"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}6"
+                  required
+                />
+              </div>
+              <div class="form-group full-row">
+                <label>Trailer Link</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="trailer"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}7"
+                  required
+                />
+              </div>
+              <div class="form-group full-row">
+                <label>Movie Description</label>
+                <textarea class="search-textarea" name="description" required>
+{{ url_for('movie_details', movie_id=movie.id) }}8</textarea
+                >
+              </div>
+              <div class="form-group">
+                <label>Featured Month</label>
+                <input
+                  class="search-date"
+                  type="month"
+                  name="featured_month"
+                  value="{{ url_for('movie_details', movie_id=movie.id) }}9"
+                />
+              </div>
+              <div class="form-group">
+                <label>Update Poster</label>
+                <input
+                  class="search-input"
+                  type="file"
+                  name="image_file"
+                  accept="image/*"
+                />
+              </div>
+              <div class="form-group full-row">
+                <label style="display: flex; align-items: center; gap: 10px">
+                  <input
+                    type="checkbox"
+                    name="is_featured"
+                    {% if movie.is_featured %}checked{% endif %}
+                  />
+                  Set as featured movie
+                </label>
+              </div>
+            </div>
 
-                <div class="button-row">
-                    <button type="submit" class="btn-save btn-primary" data-loading-text="Updating Movie...">Update Movie</button>
-                    <a href="/admin/movies" class="btn-secondary btn-ghost">Cancel</a>
-                </div>
-            </form>
+            <div class="button-row">
+              <button
+                type="submit"
+                class="btn-save btn-primary"
+                data-loading-text="Updating Movie..."
+              >
+                Update Movie
+              </button>
+              <a href="/admin/movies" class="btn-secondary btn-ghost">Cancel</a>
+            </div>
+          </form>
         </section>
 
         <aside class="panel section-card schedule-panel">
-            <h2>Current Schedule Data</h2>
-            <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 18px;">
-                <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}" style="width: 150px; height: 220px; border-radius: 14px; object-fit: cover;">
+          <h2>Current Schedule Data</h2>
+          <div
+            style="
+              display: flex;
+              gap: 16px;
+              align-items: flex-start;
+              margin-bottom: 18px;
+            "
+          >
+            <img
+              src="{{ url_for('static', filename=movie.image) }}"
+              alt="{{ movie.title }}"
+              style="
+                width: 150px;
+                height: 220px;
+                border-radius: 14px;
+                object-fit: cover;
+              "
+            />
+            <div>
+              <div
+                class="status-pill {{ status_class }}"
+                style="margin-bottom: 10px"
+              >
+                {{ movie.status }}
+              </div>
+              <div style="color: #bdbdbd; line-height: 1.6">
                 <div>
-                    <div class="status-pill {{ status_class }}" style="margin-bottom: 10px;">{{ movie.status }}</div>
-                    <div style="color: #bdbdbd; line-height: 1.6;">
-                        <div><strong>Genre:</strong> {{ movie.genre }}</div>
-                        <div><strong>Hall:</strong> {{ movie.hall_name or 'Screen 1' }}</div>
-                        <div><strong>Runtime:</strong> {{ movie.runtime_minutes or 120 }} mins</div>
-                        <div><strong>Featured:</strong> {{ format_month_label(movie.featured_month) if movie.is_featured else 'No' }}</div>
-                        <div><strong>Updated:</strong> {{ movie.updated_at or movie.created_at or 'N/A' }}</div>
-                    </div>
+                  <strong>Genre:</strong>
+                  {{ movie.genre }}
                 </div>
+                <div>
+                  <strong>Hall:</strong>
+                  {{ movie.hall_name or 'Screen 1' }}
+                </div>
+                <div>
+                  <strong>Runtime:</strong>
+                  {{ movie.runtime_minutes or 120 }} mins
+                </div>
+                <div>
+                  <strong>Featured:</strong>
+                  {{ format_month_label(movie.featured_month) if movie.is_featured else 'No' }}
+                </div>
+                <div>
+                  <strong>Updated:</strong>
+                  {{ url_for('edit_movie', id=movie.id) }}0
+                </div>
+              </div>
             </div>
+          </div>
 
-            {% if showtime_groups %}
-            <div class="schedule-grid">
-                {% for group in showtime_groups %}
-                <div class="schedule-entry">
-                    <h3>{{ group.display_date }}</h3>
-                    <div class="chip-row">
-                        {% for entry in group.entries %}
-                        <span class="chip">{{ entry.display_time }} | {{ entry.hall_name or 'Screen 1' }} | {{ entry.available_seats }} seats left</span>
-                        {% endfor %}
-                    </div>
-                </div>
+          {% if showtime_groups %}
+          <div class="schedule-grid">
+            {% for group in showtime_groups %}
+            <div class="schedule-entry">
+              <h3>{{ url_for('edit_movie', id=movie.id) }}3</h3>
+              <div class="chip-row">
+                {% for entry in group.entries %}
+                <span class="chip">
+                  {{ url_for('edit_movie', id=movie.id) }}5 | {{ url_for('edit_movie', id=movie.id) }}6 | {{ url_for('edit_movie', id=movie.id) }}7 seats left
+                </span>
                 {% endfor %}
+              </div>
             </div>
-            {% else %}
-            <div class="empty-state">No showtimes yet for this movie.</div>
-            {% endif %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">No showtimes yet for this movie.</div>
+          {% endif %}
         </aside>
-    </div>
-</main>
+      </div>
+    </main>
 
-<script src="{{ url_for('static', filename='app.js') }}"></script>
-</body>
+    <script src="{{ movie.title }}2"></script>
+  </body>
 </html>

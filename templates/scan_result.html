@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Validation - Cinemique</title>
+    <style>
+        :root {
+            --primary: #ff5b2e; /* Matches your orange buttons */
+            --bg: #111111;
+            --card-bg: #181818;
+            --border: #292929;
+            --text-dim: #adadad;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .status-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .movie-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+
+        .details {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background: #222;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            background: #292929;
+        }
+
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+    </style>
+</head>
+<body>
+
+    <div class="result-card">
+        {% if success %}
+            <div class="icon">✅</div>
+            <div class="status-title success">Access Granted</div>
+            <div class="movie-title">{{ movie_title }}</div>
+            
+            <div class="details">
+                Reference: <strong>{{ ref }}</strong><br>
+                Validated at: {{ now }}
+            </div>
+        {% else %}
+            <div class="icon">⚠️</div>
+            <div class="status-title error">Invalid Ticket</div>
+            
+            <div class="details">
+                <strong>Reason:</strong><br>
+                {{ message }}
+            </div>
+        {% endif %}
+
+        <button class="btn-back" onclick="window.history.back()">Go Back</button>
+    </div>
+
+</body>
+</html>

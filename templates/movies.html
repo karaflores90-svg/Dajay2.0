@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(17, 17, 17, 0.95); border-bottom: 1px solid #282828; }
-        .page { min-height: calc(100vh - 84px); padding: 34px 22px 56px; background: radial-gradient(circle at top right, rgba(255, 69, 0, 0.15), transparent 28%), linear-gradient(180deg, #111 0%, #181818 100%); }
+        .page { max-width: 1240px; margin: 0 auto; padding: 42px 22px 60px; }
         .page-inner { max-width: 1280px; margin: 0 auto; }
         .hero { padding: 28px; margin-bottom: 24px; }
         .hero h1 { margin: 12px 0 10px; font-size: 2.3rem; }
@@ -36,6 +36,32 @@
         .modal-content { position: relative; width: min(920px, 100%); aspect-ratio: 16 / 9; }
         .modal-content iframe { width: 100%; height: 100%; border: 2px solid #ff5b2e; border-radius: 14px; }
         .close-modal { position: absolute; top: -44px; right: 0; color: white; font-size: 40px; cursor: pointer; }
+        .hero-shell {
+            background: #1b1b1b; 
+            border: 1px solid #292929; 
+            border-radius: 20px; 
+            padding: 40px; 
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-shell::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255, 91, 46, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-shell h1 { 
+            font-size: 2.4rem; 
+            font-weight: 800; 
+            color: #ff5b2e; 
+            margin: 15px 0 12px 0; 
+            line-height: 1.2; 
+        }
         @media (max-width: 1080px) { .movie-grid, .featured-strip { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 720px) { .navbar { padding: 18px 20px; flex-direction: column; gap: 12px; } .movie-grid, .featured-strip { grid-template-columns: 1fr; } }
     </style>
@@ -62,12 +88,13 @@
 </header>
 
 <main class="page">
-    <div class="page-inner">
-        <section class="hero section-card">
-            <span class="badge-featured">Movie Library</span>
-            <h1>Browse movies, check statuses, and open showtime and seat selection in one flow.</h1>
-            <p style="color: #b8b8b8; line-height: 1.6; max-width: 780px;">Search across titles, genres, cinema names, hall names, actors, and directors. Newly added movies now appear first, while archived titles stay hidden from the public view.</p>
-        </section>
+  <section class="hero-shell">
+        <span class="badge-featured">Movie Library</span>
+        <h1>Browse movies, check statuses, and open showtime and seat selection in one flow.</h1>
+        <p style="color: #888; max-width: 550px; line-height: 1.6; margin: 0;">Search across titles, genres, cinema names, hall names, actors, and directors. Newly added movies now appear first, while archived titles stay hidden from the public view.</p>
+    </section>
+
+  
 
         {% if featured_movies %}
         <section class="featured-strip">

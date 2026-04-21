@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Ticket - {{ booking.booking_reference }}</title>
+    <script>document.documentElement.classList.add('app-loading');</script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { margin: 0; background: linear-gradient(180deg, #101010 0%, #171717 100%); color: white; }
+        .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(14, 14, 14, 0.96); border-bottom: 1px solid #292929; }
+        .page { max-width: 900px; margin: 0 auto; padding: 34px 22px 60px; }
+        
+        .ticket-container {
+            background: linear-gradient(135deg, rgba(255, 91, 46, 0.05), rgba(255, 91, 46, 0) 40%), 
+                        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border: 2px solid rgba(255, 91, 46, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ticket-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .ticket-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .ticket-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-code-wrapper {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        
+        .qr-code-wrapper img {
+            width: 220px;
+            height: 220px;
+            display: block;
+        }
+        
+        .ticket-ref {
+            font-size: 0.9rem;
+            color: #ff5b2e;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        
+        .ticket-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            line-height: 1.2;
+        }
+        
+        .ticket-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 999px;
+            color: #84f0ab;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .ticket-status.used {
+            background: rgba(255, 107, 107, 0.12);
+            border-color: rgba(255, 107, 107, 0.24);
+            color: #ffb6b6;
+        }
+        
+        .ticket-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
+        }
+        
+        .detail-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .detail-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #a9a9a9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #dfdfdf;
+        }
+        
+        .seats-display {
+            grid-column: 1 / -1;
+        }
+        
+        .seats-display .detail-value {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .seat-badge {
+            background: linear-gradient(135deg, #ff5b2e, #ff7a54);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        
+        .ticket-footer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-item {
+            text-align: center;
+            padding: 12px 0;
+        }
+        
+        .footer-label {
+            color: #a9a9a9;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        
+        .footer-value {
+            color: #dfdfdf;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-print {
+            background: linear-gradient(135deg, #ff5b2e, #ff7a54);
+            color: white;
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 91, 46, 0.3);
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.08);
+            color: #dfdfdf;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        @media print {
+            body { background: white; }
+            .navbar { display: none; }
+            .page { padding: 0; }
+            .ticket-container { border-color: #ddd; padding: 20px; }
+            .action-buttons { display: none; }
+            .qr-code-wrapper { background: white; }
+        }
+        
+        @media (max-width: 760px) {
+            .ticket-container { padding: 24px; }
+            .ticket-header { grid-template-columns: 1fr; gap: 24px; }
+            .ticket-details { grid-template-columns: 1fr; }
+            .ticket-title { font-size: 1.8rem; }
+            .detail-value { font-size: 1.1rem; }
+            .ticket-footer { grid-template-columns: 1fr; }
+            .qr-code-wrapper img { width: 180px; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+<header class="navbar">
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/movies">Movies</a></li>
+            <li><a href="/categories">Categories</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/my-bookings">My Bookings</a></li>
+        </ul>
+    </nav>
+    <div class="auth-buttons" style="position: static;">
+        <span class="user-greeting">Hi, {{ name }}!</span>
+        <a href="/logout" class="btn-secondary btn-danger">Logout</a>
+    </div>
+</header>
+
+<main class="page">
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <div class="ticket-left">
+                <div class="ticket-ref">{{ booking.booking_reference }}</div>
+                <h1 class="ticket-title">{{ booking.movie_title }}</h1>
+                {% if booking.is_ticket_used %}
+                <div class="ticket-status used">✓ TICKET USED</div>
+                <p style="color: #ffb6b6; margin: 16px 0 0 0;">Used on {{ booking.ticket_used_at }}</p>
+                {% else %}
+                <div class="ticket-status">✓ {{ booking.payment_status }} TICKET</div>
+                <p style="color: #a9a9a9; margin: 16px 0 0 0;">Booked on {{ booking.created_at }}</p>
+                {% endif %}
+            <div class="ticket-right">
+                {% if booking.payment_status == 'Paid' and booking.qr_code %}
+                <div class="qr-code-wrapper">
+                    <img src="{{ booking.qr_code }}" alt="Ticket QR Code">
+                </div>
+                {% else %}
+                <div style="text-align: center; color: #a9a9a9; padding: 40px;">
+                    <p>QR code available after payment</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="ticket-details">
+            <div class="detail-box">
+                <span class="detail-label">Cinema</span>
+                <span class="detail-value">{{ booking.cinema_name or 'Cinema TBA' }}</span>
+            </div>
+            <div class="detail-box">
+                <span class="detail-label">Hall / Screen</span>
+                <span class="detail-value">{{ booking.hall_name or 'Screen 1' }}</span>
+            </div>
+            <div class="detail-box">
+                <span class="detail-label">Show Date</span>
+                <span class="detail-value">{{ booking.display_date }}</span>
+            </div>
+            <div class="detail-box">
+                <span class="detail-label">Show Time</span>
+                <span class="detail-value">{{ booking.display_time }}</span>
+            </div>
+            <div class="detail-box seats-display">
+                <span class="detail-label">Your Seats ({{ booking.ticket_quantity }})</span>
+                <span class="detail-value">
+                    {% for seat in booking.seat_list %}
+                    <div class="seat-badge">{{ seat }}</div>
+                    {% endfor %}
+                </span>
+            </div>
+        </div>
+
+        <div class="ticket-footer">
+            <div class="footer-item">
+                <div class="footer-label">Tickets</div>
+                <div class="footer-value">{{ booking.ticket_quantity }}</div>
+            </div>
+            <div class="footer-item">
+                <div class="footer-label">Total Amount</div>
+                <div class="footer-value">{{ booking.display_amount }}</div>
+            </div>
+            <div class="footer-item">
+                <div class="footer-label">Passenger Name</div>
+                <div class="footer-value">{{ booking.user_name }}</div>
+            </div>
+        </div>
+
+        {% if booking.payment_status != 'Paid' %}
+        <div style="background: rgba(255, 180, 0, 0.1); border: 1px solid rgba(255, 180, 0, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; color: #ffd38f; text-align: center;">
+            <strong>⚠ Payment Pending</strong><br>
+            <span style="font-size: 0.9rem;">Complete your payment to generate the QR code ticket. Visit <a href="/my-bookings" style="color: #ffd38f; text-decoration: underline;">My Bookings</a> to continue.</span>
+        </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <button class="btn-action btn-print" onclick="window.print()">
+                🖨️ Print Ticket
+            </button>
+            <a href="/my-bookings" class="btn-action btn-back">
+                ← Back to Bookings
+            </a>
+        </div>
+    </div>
+
+    <div style="text-align: center; color: #a9a9a9; padding: 20px; margin-top: 40px;">
+        <p style="margin: 0 0 8px 0;">💡 <strong>Pro Tip:</strong> Save or print this ticket before your movie date</p>
+        <p style="margin: 0; font-size: 0.9rem;">Bring this QR code to the cinema entrance for easy check-in</p>
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

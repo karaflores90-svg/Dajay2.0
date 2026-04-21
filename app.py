@@ -10,10 +10,21 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta
 from urllib import error as urllib_error
 from urllib import request as urllib_request
+from io import BytesIO
 
+import qrcode
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
+from dotenv import load_dotenv
+import os
+
+# This line finds the .env file and loads it into your system's environment
+load_dotenv() 
+print(f"DEBUG: Key found: {os.getenv('PAYMONGO_SECRET_KEY')}")
+
+# Now you can pull the key
+PAYMONGO_SECRET_KEY = os.getenv('PAYMONGO_SECRET_KEY')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -279,6 +290,25 @@ def parse_paymongo_error_response(response_text, fallback_message):
     return fallback_message
 
 
+def generate_ticket_qr_code(booking_reference, booking_id, seats, movie_title):
+    # This gets your current IP/Domain (e.g., http://192.168.1.5:5000)
+    base_url = request.host_url.rstrip('/') 
+    
+    # This is the "Action Link" the phone will open
+    qr_data = f"{base_url}/bookings/scan-qr?booking_id={booking_id}"
+    
+    qr = qrcode.QRCode(box_size=10, border=5)
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save(f"static/qrcodes/qr_{booking_id}.png")
+    
+    return f"static/qrcodes/qr_{booking_id}.png"
+
+
+
+
 def paymongo_api_request(method, path, payload=None):
     secret_key = get_paymongo_secret_key()
     request_url = f"{PAYMONGO_API_BASE_URL}{path}"
@@ -427,8 +457,28 @@ def sync_booking_with_checkout_session(conn, booking_id, checkout_payload):
         if paid_at_value:
             payment_paid_at = datetime.fromtimestamp(paid_at_value).strftime("%Y-%m-%d %H:%M:%S")
 
-    conn.execute(
-        """
+    # Generate QR code if payment is being marked as Paid for the first time
+    qr_code_to_store = None
+    if payment_status == "Paid":
+        booking = conn.execute(
+            "SELECT booking_reference, seats, payment_status FROM bookings WHERE id = ?",
+            (booking_id,),
+        ).fetchone()
+        movie = conn.execute(
+            "SELECT m.title FROM bookings b JOIN movies m ON m.id = b.movie_id WHERE b.id = ?",
+            (booking_id,),
+        ).fetchone()
+        
+        # Only generate QR if booking wasn't already paid (first-time payment)
+        if booking and movie and booking["payment_status"] != "Paid":
+            qr_code_to_store = generate_ticket_qr_code(
+                booking["booking_reference"],
+                booking_id,
+                booking["seats"],
+                movie["title"]
+            )
+
+    update_query = """
         UPDATE bookings
         SET payment_status = ?,
             checkout_session_id = COALESCE(?, checkout_session_id),
@@ -437,19 +487,25 @@ def sync_booking_with_checkout_session(conn, booking_id, checkout_payload):
             payment_reference = COALESCE(?, payment_reference),
             payment_paid_at = COALESCE(?, payment_paid_at),
             updated_at = ?
-        WHERE id = ?
-        """,
-        (
-            payment_status,
-            checkout_session_id,
-            checkout_url,
-            checkout_status,
-            payment_reference,
-            payment_paid_at,
-            current_timestamp(),
-            booking_id,
-        ),
-    )
+    """
+    params = [
+        payment_status,
+        checkout_session_id,
+        checkout_url,
+        checkout_status,
+        payment_reference,
+        payment_paid_at,
+        current_timestamp(),
+    ]
+
+    if qr_code_to_store:
+        update_query += ", qr_code = ?"
+        params.append(qr_code_to_store)
+
+    update_query += " WHERE id = ?"
+    params.append(booking_id)
+
+    conn.execute(update_query, params)
 
     return {
         "checkout_session_id": checkout_session_id,
@@ -675,6 +731,10 @@ def create_bookings_table(conn):
     ensure_column(conn, "bookings", "checkout_status", "TEXT")
     ensure_column(conn, "bookings", "payment_reference", "TEXT")
     ensure_column(conn, "bookings", "payment_paid_at", "TEXT")
+    ensure_column(conn, "bookings", "qr_code", "TEXT")
+    ensure_column(conn, "bookings", "is_ticket_used", "INTEGER DEFAULT 0")
+    ensure_column(conn, "bookings", "ticket_used_at", "TEXT")
+    ensure_column(conn, "bookings", "ticket_used_by_ip", "TEXT")
 
     timestamp = current_timestamp()
     conn.execute(
@@ -1260,6 +1320,9 @@ def get_recent_bookings(conn, limit=8, user_id=None):
             b.payment_paid_at,
             b.created_at,
             b.updated_at,
+            b.qr_code,
+            b.is_ticket_used,
+            b.ticket_used_at,
             u.name AS user_name,
             m.title,
             m.image,
@@ -1595,15 +1658,17 @@ def booking_history_page():
         return redirect(url_for("signin_page"))
 
     conn = get_db_connection()
+    # Ensure this SQL query includes: m.title, m.image, st.schedule_date, st.schedule_time, etc.
     bookings = get_recent_bookings(conn, limit=None, user_id=session["user_id"])
     conn.close()
 
-    active_count = sum(1 for booking in bookings if booking["payment_status"] in ("Pending", "Paid"))
-    paid_count = sum(1 for booking in bookings if booking["payment_status"] == "Paid")
-    cancelled_count = sum(1 for booking in bookings if booking["payment_status"] in ("Cancelled", "Refunded"))
+    # Calculate summary stats
+    active_count = sum(1 for b in bookings if b["payment_status"] in ("Pending", "Paid"))
+    paid_count = sum(1 for b in bookings if b["payment_status"] == "Paid")
+    cancelled_count = sum(1 for b in bookings if b["payment_status"] in ("Cancelled", "Refunded"))
 
     return render_template(
-        "booking_history.html",
+        "booking_history.html", # Make sure this matches your filename
         name=session.get("user_name"),
         bookings=bookings,
         booking_summary={
@@ -1611,9 +1676,147 @@ def booking_history_page():
             "active": active_count,
             "paid": paid_count,
             "cancelled": cancelled_count,
-        },
+        }
     )
 
+@app.route("/bookings/ticket/<int:booking_id>")
+def view_booking_ticket(booking_id):
+    if "user_id" not in session:
+        return redirect(url_for("signin_page"))
+
+    conn = get_db_connection()
+    booking = conn.execute(
+        """
+        SELECT
+            b.id,
+            b.booking_reference,
+            b.user_id,
+            b.movie_id,
+            b.ticket_quantity,
+            b.seats,
+            b.payment_status,
+            b.payment_amount,
+            b.payment_paid_at,
+            b.created_at,
+            b.qr_code,
+            b.is_ticket_used,
+            b.ticket_used_at,
+            u.name AS user_name,
+            u.email AS user_email,
+            m.title AS movie_title,
+            m.image AS movie_image,
+            m.cinema_name,
+            m.description,
+            m.genre,
+            st.schedule_date,
+            st.schedule_time,
+            st.hall_name
+        FROM bookings b
+        JOIN users u ON u.id = b.user_id
+        JOIN movies m ON m.id = b.movie_id
+        JOIN showtimes st ON st.id = b.showtime_id
+        WHERE b.id = ? AND b.user_id = ?
+        """,
+        (booking_id, session["user_id"]),
+    ).fetchone()
+    conn.close()
+
+    if not booking:
+        flash("Booking not found.", "error")
+        return redirect(url_for("booking_history_page"))
+
+    booking = dict(booking)
+    booking["display_date"] = format_display_date(booking["schedule_date"])
+    booking["display_time"] = format_display_time(booking["schedule_time"])
+    booking["display_amount"] = format_php_amount(booking["payment_amount"])
+    booking["seat_list"] = split_csv_values(booking["seats"])
+
+    return render_template(
+        "ticket.html",
+        name=session.get("user_name"),
+        booking=booking,
+    )
+
+
+@app.route("/bookings/scan-qr", methods=["GET"]) # Changed to GET for easier scanning
+def scan_qr_code():
+    """
+    Endpoint to validate and mark a ticket as used via QR scan URL.
+    Example: /bookings/scan-qr?booking_id=123
+    """
+    try:
+        # Get booking_id from the URL parameters instead of JSON body
+        booking_id = request.args.get("booking_id")
+        
+        if not booking_id:
+            return render_template("scan_result.html", 
+                                 success=False, 
+                                 message="Invalid booking ID"), 400
+        
+        conn = get_db_connection()
+        # Optimized: Get booking and movie title in one go
+        booking = conn.execute(
+            """
+            SELECT b.id, b.booking_reference, b.payment_status, 
+                   b.is_ticket_used, b.ticket_used_at, m.title as movie_title
+            FROM bookings b
+            LEFT JOIN movies m ON b.movie_id = m.id
+            WHERE b.id = ?
+            """,
+            (booking_id,),
+        ).fetchone()
+        
+        if not booking:
+            conn.close()
+            return render_template("scan_result.html", 
+                                 success=False, 
+                                 message="Ticket not found"), 404
+        
+        booking = dict(booking)
+        
+        # Validation Checks
+        if booking["payment_status"] != "Paid":
+            conn.close()
+            return render_template("scan_result.html", 
+                                 success=False, 
+                                 message="Ticket has not been paid yet"), 403
+        
+        if booking["is_ticket_used"]:
+            conn.close()
+            return render_template("scan_result.html", 
+                                 success=False, 
+                                 message=f"Already used on {booking['ticket_used_at']}"), 403
+        
+        # Log IP and Timestamp
+        client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+        if client_ip and "," in client_ip:
+            client_ip = client_ip.split(",")[0].strip()
+            
+        timestamp = current_timestamp()
+        
+        # Update Database
+        conn.execute(
+            """
+            UPDATE bookings
+            SET is_ticket_used = 1,
+                ticket_used_at = ?,
+                ticket_used_by_ip = ?,
+                updated_at = ?
+            WHERE id = ?
+            """,
+            (timestamp, client_ip, timestamp, booking_id),
+        )
+        conn.commit()
+        conn.close()
+        
+        # Return a visual confirmation page for the staff member scanning
+        return render_template("scan_result.html", 
+                             success=True, 
+                             movie_title=booking["movie_title"],
+                             ref=booking["booking_reference"])
+        
+    except Exception as e:
+        return f"Error: {str(e)}", 500
 
 @app.route("/about")
 def about():
@@ -1948,7 +2151,9 @@ def paymongo_checkout_success(booking_id):
     conn.close()
 
     if sync_result["is_paid"]:
-        flash("Payment completed successfully via PayMongo.", "success")
+        flash("Payment completed successfully! Your ticket is ready.", "success")
+        if "user_id" in session:
+            return redirect(url_for("view_booking_ticket", booking_id=booking_id))
     else:
         flash("Checkout returned, but payment is still pending. You can continue from My Bookings.", "error")
 
@@ -2505,4 +2710,5 @@ def delete_showtime(showtime_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # This makes the server accessible to your phone on the same Wi-Fi
+    app.run(host='0.0.0.0', port=5000, debug=True)

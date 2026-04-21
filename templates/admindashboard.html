@@ -1,265 +1,706 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Cinemique</title>
-    <script>document.documentElement.classList.add('app-loading');</script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+      document.documentElement.classList.add("app-loading");
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <style>
-        body { margin: 0; background: #111; color: white; }
-        .navbar { justify-content: space-between; padding: 18px 48px; background: rgba(24, 24, 24, 0.96); border-bottom: 1px solid #2f2f2f; }
-        .nav-center { display: flex; gap: 28px; align-items: center; }
-        .nav-center a { color: white; text-decoration: none; font-weight: 700; }
-        .nav-center a.active, .nav-center a:hover { color: #ff5b2e; }
-        .nav-right { display: flex; align-items: center; gap: 16px; }
-        .page { max-width: 1320px; margin: 0 auto; padding: 34px 24px 60px; }
-        .hero-card { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 28px; padding: 28px; margin-bottom: 28px; background: linear-gradient(135deg, rgba(255, 91, 46, 0.18), transparent 42%), linear-gradient(180deg, #1b1b1b, #151515); }
-        .hero-card h1 { margin: 10px 0 12px; font-size: 2.2rem; }
-        .hero-card p { color: #c9c9c9; line-height: 1.6; }
-        .hero-side { display: grid; gap: 14px; }
-        .mini-stat { padding: 18px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid #2d2d2d; }
-        .mini-stat strong { display: block; font-size: 1.7rem; color: #ff5b2e; margin-top: 8px; }
-        .admin-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; margin-bottom: 28px; }
-        .stat-box { padding: 22px; }
-        .stat-box h3 { font-size: 2rem; margin: 0 0 6px; color: #ff5b2e; }
-        .stat-box p { margin: 0; color: #9c9c9c; text-transform: uppercase; letter-spacing: 0.06rem; font-size: 0.8rem; }
-        .dashboard-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-bottom: 28px; }
-        .panel { padding: 26px; }
-        .panel h2 { margin: 0 0 18px; color: #ff5b2e; font-size: 1.35rem; }
-        .subtle-text { color: #9f9f9f; margin-bottom: 18px; line-height: 1.5; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { display: grid; gap: 8px; }
-        .form-group label { color: #cbcbcb; font-size: 0.94rem; }
-        .full-row { grid-column: 1 / -1; }
-        .checkbox-row { display: flex; align-items: center; gap: 10px; padding-top: 10px; }
-        .table-toolbar { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-        .modern-table { width: 100%; border-collapse: collapse; background: #1a1a1a; overflow: hidden; border-radius: 14px; }
-        .modern-table th, .modern-table td { padding: 14px 16px; border-bottom: 1px solid #2b2b2b; text-align: left; vertical-align: top; }
-        .modern-table th { color: #ff946b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05rem; background: #202020; }
-        .movie-poster-sm { width: 54px; height: 78px; border-radius: 10px; object-fit: cover; }
-        .status-pill { display: inline-flex; align-items: center; padding: 7px 11px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.86rem; font-weight: 700; }
-        .status-now { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
-        .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
-        .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
-        .status-archived { color: #d3d3d3; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.14); }
-        .text-muted { color: #9d9d9d; font-size: 0.9rem; }
-        @media (max-width: 1120px) { .hero-card, .dashboard-grid { grid-template-columns: 1fr; } .admin-stats { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 760px) { .navbar { padding: 16px 20px; flex-direction: column; gap: 14px; } .form-grid, .admin-stats { grid-template-columns: 1fr; } }
+      body {
+        margin: 0;
+        background: #111;
+        color: white;
+      }
+      .navbar {
+        justify-content: space-between;
+        padding: 18px 48px;
+        background: rgba(24, 24, 24, 0.96);
+        border-bottom: 1px solid #2f2f2f;
+      }
+      .nav-center {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+      }
+      .nav-center a {
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .nav-center a.active,
+      .nav-center a:hover {
+        color: #ff5b2e;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .page {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 34px 24px 60px;
+      }
+      .hero-card {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 28px;
+        padding: 28px;
+        margin-bottom: 28px;
+        background:
+          linear-gradient(135deg, rgba(255, 91, 46, 0.18), transparent 42%),
+          linear-gradient(180deg, #1b1b1b, #151515);
+      }
+      .hero-card h1 {
+        margin: 10px 0 12px;
+        font-size: 2.2rem;
+      }
+      .hero-card p {
+        color: #c9c9c9;
+        line-height: 1.6;
+      }
+      .hero-side {
+        display: grid;
+        gap: 14px;
+      }
+      .mini-stat {
+        padding: 18px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid #2d2d2d;
+      }
+      .mini-stat strong {
+        display: block;
+        font-size: 1.7rem;
+        color: #ff5b2e;
+        margin-top: 8px;
+      }
+      .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+      .stat-box {
+        padding: 22px;
+      }
+      .stat-box h3 {
+        font-size: 2rem;
+        margin: 0 0 6px;
+        color: #ff5b2e;
+      }
+      .stat-box p {
+        margin: 0;
+        color: #9c9c9c;
+        text-transform: uppercase;
+        letter-spacing: 0.06rem;
+        font-size: 0.8rem;
+      }
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+      .panel {
+        padding: 26px;
+      }
+      .panel h2 {
+        margin: 0 0 18px;
+        color: #ff5b2e;
+        font-size: 1.35rem;
+      }
+      .subtle-text {
+        color: #9f9f9f;
+        margin-bottom: 18px;
+        line-height: 1.5;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .form-group {
+        display: grid;
+        gap: 8px;
+      }
+      .form-group label {
+        color: #cbcbcb;
+        font-size: 0.94rem;
+      }
+      .full-row {
+        grid-column: 1 / -1;
+      }
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-top: 10px;
+      }
+      .table-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #1a1a1a;
+        overflow: hidden;
+        border-radius: 14px;
+      }
+      .modern-table th,
+      .modern-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #2b2b2b;
+        text-align: left;
+        vertical-align: top;
+      }
+      .modern-table th {
+        color: #ff946b;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05rem;
+        background: #202020;
+      }
+      .movie-poster-sm {
+        width: 54px;
+        height: 78px;
+        border-radius: 10px;
+        object-fit: cover;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 11px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+      .status-now {
+        color: #84f0ab;
+        background: rgba(0, 255, 136, 0.1);
+        border-color: rgba(0, 255, 136, 0.2);
+      }
+      .status-soon {
+        color: #ffd38f;
+        background: rgba(255, 180, 0, 0.12);
+        border-color: rgba(255, 180, 0, 0.22);
+      }
+      .status-ended {
+        color: #9fd6ff;
+        background: rgba(85, 165, 255, 0.12);
+        border-color: rgba(85, 165, 255, 0.22);
+      }
+      .status-archived {
+        color: #d3d3d3;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.14);
+      }
+      .text-muted {
+        color: #9d9d9d;
+        font-size: 0.9rem;
+      }
+      @media (max-width: 1120px) {
+        .hero-card,
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+        .admin-stats {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 760px) {
+        .navbar {
+          padding: 16px 20px;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .form-grid,
+        .admin-stats {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
-</head>
-<body>
-<header class="navbar">
-    <h2 style="color: #ff5b2e; margin: 0; letter-spacing: 2px;">CINEMIQUE</h2>
-    <nav class="nav-center">
+  </head>
+  <body>
+    <header class="navbar">
+      <h2 style="color: #ff5b2e; margin: 0; letter-spacing: 2px">CINEMIQUE</h2>
+      <nav class="nav-center">
         <a href="/admin" class="active">Dashboard</a>
         <a href="/admin/movies">Manage Movies</a>
         <a href="/admin/reports">Reports</a>
         <a href="/movies" target="_blank">View Site</a>
-    </nav>
-    <div class="nav-right">
+      </nav>
+      <div class="nav-right">
         <span class="user-greeting">Hi, {{ name }}!</span>
         <a href="/logout" class="btn-secondary btn-danger">Logout</a>
-    </div>
-</header>
+      </div>
+    </header>
 
-<main class="page">
-    {% include '_flash_messages.html' %}
+    <main class="page">
+      {% include '_flash_messages.html' %}
 
-    <section class="hero-card section-card">
+      <section class="hero-card section-card">
         <div>
-            <span class="badge-featured">Admin Control Center</span>
-            <h1>Manage movies, halls, schedules, validation, and live booking activity.</h1>
-            <p>Use this dashboard to add titles, assign screens, validate showtime conflicts, monitor the newest inventory first, and manage the full schedule table connected to each movie ID.</p>
+          <span class="badge-featured">Admin Control Center</span>
+          <h1>
+            Manage movies, halls, schedules, validation, and live booking
+            activity.
+          </h1>
+          <p>
+            Use this dashboard to add titles, assign screens, validate showtime
+            conflicts, monitor the newest inventory first, and manage the full
+            schedule table connected to each movie ID.
+          </p>
         </div>
         <div class="hero-side">
-            <div class="mini-stat"><span class="text-muted">Featured Month</span><strong>{{ current_month_label }}</strong></div>
-            <div class="mini-stat"><span class="text-muted">Inventory Order</span><strong>Newest First</strong></div>
-            <div class="mini-stat"><span class="text-muted">Booking Layer</span><strong>Live</strong></div>
+          <div class="mini-stat">
+            <span class="text-muted">Featured Month</span>
+            <strong>{{ current_month_label }}</strong>
+          </div>
+          <div class="mini-stat">
+            <span class="text-muted">Inventory Order</span>
+            <strong>Newest First</strong>
+          </div>
+          <div class="mini-stat">
+            <span class="text-muted">Booking Layer</span>
+            <strong>Live</strong>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <section class="admin-stats">
-        <div class="stat-box section-card"><h3>{{ stats.total_movies }}</h3><p>Total Movies</p></div>
-        <div class="stat-box section-card"><h3>{{ stats.active_users }}</h3><p>Registered Users</p></div>
-        <div class="stat-box section-card"><h3>{{ stats.featured_movies }}</h3><p>Featured This Month</p></div>
-        <div class="stat-box section-card"><h3>{{ stats.total_bookings }}</h3><p>Total Bookings</p></div>
-        <div class="stat-box section-card"><h3>{{ stats.today_bookings }}</h3><p>Today</p></div>
-        <div class="stat-box section-card"><h3>{{ stats.week_bookings }}</h3><p>Last 7 Days</p></div>
-        <div class="stat-box section-card"><h3>{{ format_php_amount(stats.total_transaction_value) }}</h3><p>Total Transaction Value</p></div>
-        <div class="stat-box section-card"><h3>{{ format_php_amount(stats.paid_transaction_value) }}</h3><p>Paid Revenue</p></div>
-        <div class="stat-box section-card"><h3>{{ format_php_amount(stats.pending_transaction_value) }}</h3><p>Pending Value</p></div>
-    </section>
+      <section class="admin-stats">
+        <div class="stat-box section-card">
+          <h3>{{ stats.total_movies }}</h3>
+          <p>Total Movies</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ stats.active_users }}</h3>
+          <p>Registered Users</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ stats.featured_movies }}</h3>
+          <p>Featured This Month</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ stats.total_bookings }}</h3>
+          <p>Total Bookings</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ stats.today_bookings }}</h3>
+          <p>Today</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ stats.week_bookings }}</h3>
+          <p>Last 7 Days</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ name }}0</h3>
+          <p>Total Transaction Value</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ name }}1</h3>
+          <p>Paid Revenue</p>
+        </div>
+        <div class="stat-box section-card">
+          <h3>{{ name }}2</h3>
+          <p>Pending Value</p>
+        </div>
+      </section>
 
-    <section class="dashboard-grid">
+      <section class="dashboard-grid">
         <div class="panel section-card">
-            <h2>Add New Movie</h2>
-            <p class="subtle-text">Create a movie with description, actors, directors, hall assignment, runtime, optional featured month, and the initial schedule. Validation and conflict checks run before saving.</p>
-            <form action="/add_movie" method="POST" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group"><label>Movie Title</label><input class="search-input" type="text" name="title" placeholder="e.g. 28 Years Later" required></div>
-                    <div class="form-group">
-                        <label>Genre</label>
-                        <select class="search-select" name="genre" required>
-                            <option value="">Select genre</option>
-                            <option value="Sci-Fi">Sci-Fi</option>
-                            <option value="Horror">Horror</option>
-                            <option value="Animation">Animation</option>
-                            <option value="Action">Action</option>
-                            <option value="Drama">Drama</option>
-                            <option value="Comedy">Comedy</option>
-                            <option value="Thriller">Thriller</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Cinema Name</label><input class="search-input" type="text" name="cinema" placeholder="e.g. SM City Cinema" required></div>
-                    <div class="form-group">
-                        <label>Listing Status</label>
-                        <select class="search-select" name="status" required>
-                            <option value="Now Showing">Now Showing</option>
-                            <option value="Coming Soon">Coming Soon</option>
-                            <option value="Ended">Ended</option>
-                            <option value="Archived">Archived</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Hall / Screen</label><input class="search-input" type="text" name="hall_name" placeholder="e.g. Screen 1" required></div>
-                    <div class="form-group"><label>Runtime (minutes)</label><input class="search-input" type="number" name="runtime_minutes" min="30" step="1" value="120" required></div>
-                    <div class="form-group"><label>Primary Show Date</label><input class="search-date" type="date" name="show_date"></div>
-                    <div class="form-group"><label>Primary Showtimes</label><input class="search-input" type="text" name="showtimes" placeholder="e.g. 10:00 AM, 1:30 PM, 7:15 PM"></div>
-                    <div class="form-group"><label>Actors</label><input class="search-input" type="text" name="actors" placeholder="e.g. Sam Worthington, Zoe Saldana" required></div>
-                    <div class="form-group"><label>Directors</label><input class="search-input" type="text" name="directors" placeholder="e.g. James Cameron" required></div>
-                    <div class="form-group full-row"><label>Trailer Link</label><input class="search-input" type="text" name="trailer" placeholder="https://www.youtube.com/watch?v=..." required></div>
-                    <div class="form-group full-row"><label>Movie Description</label><textarea class="search-textarea" name="description" placeholder="Write the custom movie description here..." required></textarea></div>
-                    <div class="form-group"><label>Featured Month</label><input class="search-date" type="month" name="featured_month" value="{{ current_month_value }}"></div>
-                    <div class="form-group"><label>Movie Poster</label><input class="search-input" type="file" name="image_file" accept="image/*" required></div>
-                    <div class="checkbox-row full-row">
-                        <input type="checkbox" id="is_featured" name="is_featured">
-                        <label for="is_featured" style="margin: 0;">Set as featured movie for the selected month</label>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit btn-primary" style="margin-top: 20px; width: 100%;" data-loading-text="Saving Movie...">Save Movie Record</button>
+          <h2>Add New Movie</h2>
+          <p class="subtle-text">
+            Create a movie with description, actors, directors, hall assignment,
+            runtime, optional featured month, and the initial schedule.
+            Validation and conflict checks run before saving.
+          </p>
+          <form action="/add_movie" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Movie Title</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="title"
+                  placeholder="e.g. 28 Years Later"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Genre</label>
+                <select class="search-select" name="genre" required>
+                  <option value="">Select genre</option>
+                  <option value="Sci-Fi">Sci-Fi</option>
+                  <option value="Horror">Horror</option>
+                  <option value="Animation">Animation</option>
+                  <option value="Action">Action</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Comedy">Comedy</option>
+                  <option value="Thriller">Thriller</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Cinema Name</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="cinema"
+                  placeholder="e.g. SM City Cinema"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Listing Status</label>
+                <select class="search-select" name="status" required>
+                  <option value="Now Showing">Now Showing</option>
+                  <option value="Coming Soon">Coming Soon</option>
+                  <option value="Ended">Ended</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Hall / Screen</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="hall_name"
+                  placeholder="e.g. Screen 1"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Runtime (minutes)</label>
+                <input
+                  class="search-input"
+                  type="number"
+                  name="runtime_minutes"
+                  min="30"
+                  step="1"
+                  value="120"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Primary Show Date</label>
+                <input class="search-date" type="date" name="show_date" />
+              </div>
+              <div class="form-group">
+                <label>Primary Showtimes</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="showtimes"
+                  placeholder="e.g. 10:00 AM, 1:30 PM, 7:15 PM"
+                />
+              </div>
+              <div class="form-group">
+                <label>Actors</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="actors"
+                  placeholder="e.g. Sam Worthington, Zoe Saldana"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Directors</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="directors"
+                  placeholder="e.g. James Cameron"
+                  required
+                />
+              </div>
+              <div class="form-group full-row">
+                <label>Trailer Link</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="trailer"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  required
+                />
+              </div>
+              <div class="form-group full-row">
+                <label>Movie Description</label>
+                <textarea
+                  class="search-textarea"
+                  name="description"
+                  placeholder="Write the custom movie description here..."
+                  required
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label>Featured Month</label>
+                <input
+                  class="search-date"
+                  type="month"
+                  name="featured_month"
+                  value="{{ name }}3"
+                />
+              </div>
+              <div class="form-group">
+                <label>Movie Poster</label>
+                <input
+                  class="search-input"
+                  type="file"
+                  name="image_file"
+                  accept="image/*"
+                  required
+                />
+              </div>
+              <div class="checkbox-row full-row">
+                <input type="checkbox" id="is_featured" name="is_featured" />
+                <label for="is_featured" style="margin: 0">
+                  Set as featured movie for the selected month
+                </label>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="btn-submit btn-primary"
+              style="margin-top: 20px; width: 100%"
+              data-loading-text="Saving Movie..."
+            >
+              Save Movie Record
+            </button>
+          </form>
+        </div>
+
+        <div style="display: grid; gap: 24px">
+          <div class="panel section-card">
+            <h2>Add Schedule</h2>
+            <p class="subtle-text">
+              Create additional showtime rows for any movie. Conflict validation
+              checks overlapping times inside the same cinema, date, and hall.
+            </p>
+            <form
+              action="{{ name }}4"
+              method="POST"
+              style="display: grid; gap: 14px"
+            >
+              <div class="form-group">
+                <label>Select Movie</label>
+                <select class="search-select" name="movie_id" required>
+                  <option value="">Choose a movie</option>
+                  {% for movie in all_movies %}
+                  <option value="{{ name }}6">{{ name }}7</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Hall / Screen</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="hall_name"
+                  placeholder="e.g. Screen 2"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Schedule Date</label>
+                <input
+                  class="search-date"
+                  type="date"
+                  name="schedule_date"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Showtimes</label>
+                <input
+                  class="search-input"
+                  type="text"
+                  name="schedule_times"
+                  placeholder="e.g. 10:00 AM, 1:00 PM, 7:30 PM"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                class="btn-submit btn-primary"
+                data-loading-text="Adding Schedule..."
+              >
+                Add Showtime Schedule
+              </button>
             </form>
-        </div>
+          </div>
 
-        <div style="display: grid; gap: 24px;">
-            <div class="panel section-card">
-                <h2>Add Schedule</h2>
-                <p class="subtle-text">Create additional showtime rows for any movie. Conflict validation checks overlapping times inside the same cinema, date, and hall.</p>
-                <form action="{{ url_for('add_showtime') }}" method="POST" style="display: grid; gap: 14px;">
-                    <div class="form-group">
-                        <label>Select Movie</label>
-                        <select class="search-select" name="movie_id" required>
-                            <option value="">Choose a movie</option>
-                            {% for movie in all_movies %}
-                            <option value="{{ movie.id }}">{{ movie.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Hall / Screen</label><input class="search-input" type="text" name="hall_name" placeholder="e.g. Screen 2" required></div>
-                    <div class="form-group"><label>Schedule Date</label><input class="search-date" type="date" name="schedule_date" required></div>
-                    <div class="form-group"><label>Showtimes</label><input class="search-input" type="text" name="schedule_times" placeholder="e.g. 10:00 AM, 1:00 PM, 7:30 PM" required></div>
-                    <button type="submit" class="btn-submit btn-primary" data-loading-text="Adding Schedule...">Add Showtime Schedule</button>
-                </form>
+          <div class="panel section-card">
+            <div class="table-toolbar">
+              <div>
+                <h2 style="margin-bottom: 6px">Recent Movie Inventory</h2>
+                <p class="subtle-text" style="margin: 0">
+                  Newest added movies appear first in both admin and public
+                  listings.
+                </p>
+              </div>
+              <a
+                href="/admin/movies"
+                class="btn-secondary btn-ghost btn-compact"
+              >
+                Open Full Library
+              </a>
             </div>
-
-            <div class="panel section-card">
-                <div class="table-toolbar">
-                    <div>
-                        <h2 style="margin-bottom: 6px;">Recent Movie Inventory</h2>
-                        <p class="subtle-text" style="margin: 0;">Newest added movies appear first in both admin and public listings.</p>
+            {% if recent_movies %}
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Movie</th>
+                  <th>Status</th>
+                  <th>Hall</th>
+                  <th>Added</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for movie in recent_movies %}
+                {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
+                <tr>
+                  <td>
+                    <div style="display: flex; gap: 12px; align-items: center">
+                      <img
+                        src="{{ url_for('static', filename=movie.image) }}"
+                        alt="{{ movie.title }}"
+                        class="movie-poster-sm"
+                      />
+                      <div>
+                        <strong>{{ movie.title }}</strong>
+                        <div class="text-muted">
+                          {{ movie.genre }} | {{ movie.runtime_minutes or 120 }} mins
+                        </div>
+                      </div>
                     </div>
-                    <a href="/admin/movies" class="btn-secondary btn-ghost btn-compact">Open Full Library</a>
-                </div>
-                {% if recent_movies %}
-                <table class="modern-table">
-                    <thead><tr><th>Movie</th><th>Status</th><th>Hall</th><th>Added</th></tr></thead>
-                    <tbody>
-                        {% for movie in recent_movies %}
-                        {% set status_class = 'status-now' if movie.status == 'Now Showing' else 'status-soon' if movie.status == 'Coming Soon' else 'status-ended' if movie.status == 'Ended' else 'status-archived' %}
-                        <tr>
-                            <td>
-                                <div style="display: flex; gap: 12px; align-items: center;">
-                                    <img src="{{ url_for('static', filename=movie.image) }}" alt="{{ movie.title }}" class="movie-poster-sm">
-                                    <div>
-                                        <strong>{{ movie.title }}</strong>
-                                        <div class="text-muted">{{ movie.genre }} | {{ movie.runtime_minutes or 120 }} mins</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="status-pill {{ status_class }}">{{ movie.status }}</span></td>
-                            <td>{{ movie.hall_name or 'Screen 1' }}</td>
-                            <td>{{ movie.created_at or 'N/A' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="empty-state">No movies yet. Add your first movie to populate the inventory.</div>
-                {% endif %}
+                  </td>
+                  <td>
+                    <span class="status-pill {{ status_class }}">
+                      {{ movie.status }}
+                    </span>
+                  </td>
+                  <td>{{ movie.hall_name or 'Screen 1' }}</td>
+                  <td>{{ current_month_label }}0</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+              No movies yet. Add your first movie to populate the inventory.
             </div>
+            {% endif %}
+          </div>
         </div>
-    </section>
+      </section>
 
-    <section class="panel section-card" style="margin-bottom: 24px;">
+      <section class="panel section-card" style="margin-bottom: 24px">
         <div class="table-toolbar">
-            <div>
-                <h2 style="margin-bottom: 6px;">Showtime Data</h2>
-                <p class="subtle-text" style="margin: 0;">Full admin-visible showtime rows from the DBMS schedule table.</p>
-            </div>
+          <div>
+            <h2 style="margin-bottom: 6px">Showtime Data</h2>
+            <p class="subtle-text" style="margin: 0">
+              Full admin-visible showtime rows from the DBMS schedule table.
+            </p>
+          </div>
         </div>
         {% if showtime_rows %}
         <table class="modern-table">
-            <thead><tr><th>ID</th><th>Movie</th><th>Date</th><th>Time</th><th>Hall</th><th>Cinema</th><th>Occupancy</th><th>Action</th></tr></thead>
-            <tbody>
-                {% for showtime in showtime_rows %}
-                <tr>
-                    <td>#{{ showtime.id }}</td>
-                    <td>{{ showtime.title }}</td>
-                    <td>{{ showtime.display_date }}</td>
-                    <td>{{ showtime.display_time }}</td>
-                    <td>{{ showtime.hall_name or 'Screen 1' }}</td>
-                    <td>{{ showtime.cinema_name }}</td>
-                    <td>{{ showtime.seats_booked }}/{{ total_seat_count }} ({{ showtime.occupancy_percent }}%)</td>
-                    <td><a href="{{ url_for('delete_showtime', showtime_id=showtime.id) }}" class="btn-secondary btn-danger btn-compact" onclick="return confirm('Delete this showtime?')">Delete</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Movie</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Hall</th>
+              <th>Cinema</th>
+              <th>Occupancy</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for showtime in showtime_rows %}
+            <tr>
+              <td>#{{ current_month_label }}6</td>
+              <td>{{ current_month_label }}7</td>
+              <td>{{ current_month_label }}8</td>
+              <td>{{ current_month_label }}9</td>
+              <td>{{ stats.total_movies }}0</td>
+              <td>{{ stats.total_movies }}1</td>
+              <td>{{ stats.total_movies }}2/{{ stats.total_movies }}3 ({{ stats.total_movies }}4%)</td>
+              <td>
+                <a
+                  href="{{ stats.total_movies }}5"
+                  class="btn-secondary btn-danger btn-compact"
+                  onclick="return confirm('Delete this showtime?');"
+                >
+                  Delete
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
         {% else %}
         <div class="empty-state">No showtimes saved yet.</div>
         {% endif %}
-    </section>
+      </section>
 
-    <section class="panel section-card">
+      <section class="panel section-card">
         <div class="table-toolbar">
-            <div>
-                <h2 style="margin-bottom: 6px;">Recent Bookings</h2>
-                <p class="subtle-text" style="margin: 0;">Quick view of the latest booking activity before jumping into reports.</p>
-            </div>
-            <a href="/admin/reports" class="btn-secondary btn-ghost btn-compact">Open Full Reports</a>
+          <div>
+            <h2 style="margin-bottom: 6px">Recent Bookings</h2>
+            <p class="subtle-text" style="margin: 0">
+              Quick view of the latest booking activity before jumping into
+              reports.
+            </p>
+          </div>
+          <a href="/admin/reports" class="btn-secondary btn-ghost btn-compact">
+            Open Full Reports
+          </a>
         </div>
         {% if recent_bookings %}
         <table class="modern-table">
-            <thead><tr><th>Reference</th><th>User</th><th>Movie</th><th>Schedule</th><th>Seats</th><th>Amount</th><th>Status</th></tr></thead>
-            <tbody>
-                {% for booking in recent_bookings %}
-                <tr>
-                    <td>{{ booking.booking_reference }}</td>
-                    <td>{{ booking.user_name }}</td>
-                    <td>{{ booking.title }}</td>
-                    <td>{{ booking.display_date }} | {{ booking.display_time }} | {{ booking.hall_name or 'Screen 1' }}</td>
-                    <td>{{ booking.seats }}</td>
-                    <td>{{ booking.display_amount }}</td>
-                    <td>{{ booking.payment_status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>User</th>
+              <th>Movie</th>
+              <th>Schedule</th>
+              <th>Seats</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in recent_bookings %}
+            <tr>
+              <td>{{ stats.active_users }}1</td>
+              <td>{{ stats.active_users }}2</td>
+              <td>{{ stats.active_users }}3</td>
+              <td>{{ stats.active_users }}4 | {{ stats.active_users }}5 | {{ stats.active_users }}6</td>
+              <td>{{ stats.active_users }}7</td>
+              <td>{{ stats.active_users }}8</td>
+              <td>{{ stats.active_users }}9</td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
         {% else %}
         <div class="empty-state">No booking activity yet.</div>
         {% endif %}
-    </section>
-</main>
+      </section>
+    </main>
 
-<script src="{{ url_for('static', filename='app.js') }}"></script>
-</body>
+    <script src="{{ stats.featured_movies }}3"></script>
+  </body>
 </html>

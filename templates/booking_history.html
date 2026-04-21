@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-loading">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,123 +7,213 @@
     <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        body { margin: 0; background: linear-gradient(180deg, #101010 0%, #171717 100%); color: white; }
-        .navbar { justify-content: space-between; padding: 18px 42px; background: rgba(14, 14, 14, 0.96); border-bottom: 1px solid #292929; }
-        .page { max-width: 1240px; margin: 0 auto; padding: 34px 22px 60px; }
-        .hero { padding: 28px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(255, 91, 46, 0.15), transparent 40%), linear-gradient(180deg, #1b1b1b, #151515); }
-        .hero h1 { margin: 12px 0 10px; font-size: clamp(2rem, 4vw, 3.2rem); }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
-        .stat-card { padding: 22px; }
-        .stat-card strong { display: block; font-size: 2rem; color: #ff5b2e; margin-top: 8px; }
-        .bookings-grid { display: grid; gap: 18px; }
-        .booking-card { display: grid; grid-template-columns: 120px 1fr; gap: 18px; padding: 22px; }
-        .booking-card img { width: 120px; height: 168px; object-fit: cover; border-radius: 16px; }
-        .booking-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
-        .booking-top h2 { margin: 6px 0 8px; font-size: 1.45rem; }
-        .status-pill { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); font-size: 0.9rem; font-weight: 700; }
-        .status-pending { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
-        .status-paid { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
-        .status-cancelled, .status-refunded { color: #ffb6b6; background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.24); }
-        .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
-        .meta-box { padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: #cbcbcb; line-height: 1.55; }
-        .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        body { margin: 0; background: #101010; color: white; font-family: 'Inter', sans-serif; }
+        
+        .navbar { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 18px 42px; 
+            background: rgba(17, 17, 17, 0.95); 
+            border-bottom: 1px solid #272727; 
+            align-items: center;
+        }
+
+        /* Hero matching Categories/About style */
+        .page { max-width: 1240px; margin: 0 auto; padding: 42px 22px 60px; }
+        
+        .hero-shell {
+            background: #1b1b1b; 
+            border: 1px solid #292929; 
+            border-radius: 20px; 
+            padding: 40px; 
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-shell::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255, 91, 46, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-shell h1 { 
+            font-size: 2.4rem; 
+            font-weight: 800; 
+            color: #ff5b2e; 
+            margin: 15px 0 12px 0; 
+            line-height: 1.2; 
+        }
+
+        .badge-center {
+            display: inline-block; 
+            background: rgba(255, 91, 46, 0.1); 
+            border: 1px solid #ff5b2e; 
+            color: #ff5b2e; 
+            padding: 4px 12px; 
+            border-radius: 8px; 
+            font-size: 0.7rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        /* Stats Section */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
+        .stat-card { padding: 22px; border-radius: 20px; background: #161616; border: 1px solid #252525; transition: 0.3s; }
+        .stat-card:hover { border-color: #333; transform: translateY(-3px); }
+        .stat-card span { color: #888; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card strong { display: block; font-size: 2rem; color: #fff; margin-top: 8px; }
+        
+        /* Booking Cards */
+        .bookings-grid { display: grid; gap: 24px; }
+        .booking-card { 
+            display: grid; 
+            grid-template-columns: 160px 1fr; 
+            gap: 30px; 
+            padding: 24px; 
+            border-radius: 24px; 
+            background: #161616; 
+            border: 1px solid #252525; 
+        }
+
+        .booking-card img { width: 160px; height: 230px; object-fit: cover; border-radius: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        
+        .booking-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .booking-top h2 { margin: 8px 0 4px; font-size: 1.7rem; color: #fff; }
+        
+        /* Status Pills */
+        .status-pill { padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .status-paid { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2); }
+        .status-pending { color: #ffd38f; background: rgba(255, 180, 0, 0.1); border: 1px solid rgba(255, 180, 0, 0.2); }
+
+        /* Meta Grid */
+        .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+        .meta-box { padding: 16px; border-radius: 16px; background: #1b1b1b; border: 1px solid #292929; color: #adadad; font-size: 0.9rem; }
+        .meta-box strong { color: #ff5b2e; display: block; margin-bottom: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Buttons */
+        .btn-ghost { background: #222; border: 1px solid #333; color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; transition: 0.2s; }
+        .btn-ghost:hover { background: #282828; border-color: #444; }
+
+        /* Logout Fix */
+        .btn-logout { background: #2a1a1a; color: #ff6b6b; border: 1px solid #3d2b2b; padding: 10px 18px; border-radius: 12px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: 0.2s; }
+        .btn-logout:hover { background: #3d2525; }
+
+        #loading-overlay { position: fixed; inset: 0; z-index: 9999; background: #101010; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 91, 46, 0.1); border-top-color: #ff5b2e; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 980px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .meta-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 760px) { .navbar { padding: 18px 20px; flex-direction: column; gap: 12px; } .booking-card { grid-template-columns: 1fr; } .booking-card img { width: 100%; height: 280px; } .stats-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 650px) { .booking-card { grid-template-columns: 1fr; } .booking-card img { width: 100%; height: 300px; } }
     </style>
 </head>
 <body>
+
+<div id="loading-overlay">
+    <div style="text-align: center;">
+        <div class="spinner"></div>
+        <div style="letter-spacing: 4px; font-size: 0.7rem; color: #fff; text-transform: uppercase; margin-top: 20px; opacity: 0.6;">Cinemique</div>
+    </div>
+</div>
+
 <header class="navbar">
     <nav>
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/movies">Movies</a></li>
+            <li><a href="/movies" >Movies</a></li>
             <li><a href="/categories">Categories</a></li>
             <li><a href="/about">About</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="/admin" style="color: #ff5b2e; font-weight: bold;">Dashboard</a></li>
+            {% elif session.get('user_id') %}
             <li><a href="/my-bookings" class="active">My Bookings</a></li>
+            {% endif %}
         </ul>
     </nav>
     <div class="auth-buttons" style="position: static;">
-        <span class="user-greeting">Hi, {{ name }}!</span>
+        <span style="color: #00d4ff; font-weight: bold; font-size: 1.05rem;">Hi, {{ name }}!</span>
         <a href="/logout" class="btn-secondary btn-danger">Logout</a>
     </div>
 </header>
 
 <main class="page">
-    {% include '_flash_messages.html' %}
-    <section class="hero section-card">
-        <span class="badge-featured">Booking Center</span>
-        <h1>Review your active, paid, and closed bookings in one place.</h1>
-        <p style="color: #bcbcbc; line-height: 1.7; max-width: 780px;">Every booking is linked to a movie, showtime, hall, and seat set. You can also cancel active bookings here, and released seats will return to the showtime inventory automatically.</p>
+    <section class="hero-shell">
+        <span class="badge-center">Booking Center</span>
+        <h1>Review your active, paid, and <br>closed bookings in one place.</h1>
+        <p style="color: #888; max-width: 550px; line-height: 1.6; margin: 0;">Manage your movie schedules and payment statuses here. Released seats from cancelled bookings return to inventory automatically.</p>
     </section>
 
     <section class="stats-grid">
-        <div class="stat-card section-card"><span style="color: #a4a4a4;">Total Bookings</span><strong>{{ booking_summary.total }}</strong></div>
-        <div class="stat-card section-card"><span style="color: #a4a4a4;">Active</span><strong>{{ booking_summary.active }}</strong></div>
-        <div class="stat-card section-card"><span style="color: #a4a4a4;">Paid</span><strong>{{ booking_summary.paid }}</strong></div>
-        <div class="stat-card section-card"><span style="color: #a4a4a4;">Closed</span><strong>{{ booking_summary.cancelled }}</strong></div>
+        <div class="stat-card"><span>Total</span><strong>{{ booking_summary.total }}</strong></div>
+        <div class="stat-card"><span>Active</span><strong>{{ booking_summary.active }}</strong></div>
+        <div class="stat-card"><span>Paid</span><strong>{{ booking_summary.paid }}</strong></div>
+        <div class="stat-card"><span>Closed</span><strong>{{ booking_summary.cancelled }}</strong></div>
     </section>
 
     {% if bookings %}
-    <section class="bookings-grid">
+    <div class="bookings-grid">
         {% for booking in bookings %}
-        {% set booking_class = 'status-pending' if booking.payment_status == 'Pending' else 'status-paid' if booking.payment_status == 'Paid' else 'status-refunded' if booking.payment_status == 'Refunded' else 'status-cancelled' %}
-        <article class="booking-card section-card">
-            <img src="{{ url_for('static', filename=booking.image) }}" alt="{{ booking.title }}">
-            <div>
+        <article class="booking-card">
+            <img src="{{ url_for('static', filename=booking.image) if booking.image else url_for('static', filename='posters/1.PNG') }}" alt="Poster">
+            
+            <div class="booking-content">
                 <div class="booking-top">
                     <div>
-                        <span class="badge-featured">{{ booking.booking_reference }}</span>
-                        <h2>{{ booking.title }}</h2>
-                        <div style="color: #b0b0b0;">Booked on {{ booking.created_at or 'N/A' }}</div>
+                        <span style="color: #ff5b2e; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;">REF: {{ booking.booking_reference }}</span>
+                        <h2>{{ booking.movie_title }}</h2>
+                        <div style="color: #666; font-size: 0.85rem;">Transaction: {{ booking.created_at }}</div>
                     </div>
-                    <span class="status-pill {{ booking_class }}">{{ booking.payment_status }}</span>
+                    <span class="status-pill status-{{ booking.payment_status|lower }}">{{ booking.payment_status }}</span>
                 </div>
 
                 <div class="meta-grid">
+                    <div class="meta-box"><strong>Schedule</strong>{{ booking.schedule_date }}<br>{{ booking.schedule_time }}</div>
+                    <div class="meta-box"><strong>Location</strong>{{ booking.cinema_name }}<br>Seats: {{ booking.seats }}</div>
                     <div class="meta-box">
-                        <strong style="display: block; margin-bottom: 6px;">Schedule</strong>
-                        {{ booking.display_date }}<br>
-                        {{ booking.display_time }}<br>
-                        {{ booking.hall_name or 'Screen 1' }}
-                    </div>
-                    <div class="meta-box">
-                        <strong style="display: block; margin-bottom: 6px;">Cinema & Seats</strong>
-                        {{ booking.cinema_name or 'Cinema TBA' }}<br>
-                        Seats: {{ booking.seats }}<br>
-                        Tickets: {{ booking.ticket_quantity }}<br>
-                        Total: {{ booking.display_amount }}
-                    </div>
-                    <div class="meta-box">
-                        <strong style="display: block; margin-bottom: 6px;">Status Notes</strong>
-                        Last updated: {{ booking.updated_at or booking.created_at or 'N/A' }}<br>
-                        Gateway: {{ booking.payment_provider or 'N/A' }}<br>
-                        Checkout: {{ booking.checkout_status or 'pending' }}<br>
-                        {% if booking.payment_status == 'Paid' and booking.payment_paid_at %}Paid at: {{ booking.payment_paid_at }}{% elif booking.payment_status in ('Pending', 'Paid') %}This booking is active.{% else %}This booking is already closed.{% endif %}
+                        <strong>Payment Status</strong>
+                        {% if booking.payment_status == 'Paid' %} Paid via Online {% else %} Awaiting Confirmation {% endif %}
                     </div>
                 </div>
 
                 <div class="action-row">
-                    <a href="{{ url_for('movie_details', movie_id=booking.movie_id) }}" class="btn-secondary btn-ghost">Open Movie</a>
-                    {% if booking.payment_status == 'Pending' %}
-                    <form action="{{ url_for('start_booking_checkout', booking_id=booking.id) }}" method="POST">
-                        <button type="submit" class="btn-primary" data-loading-text="Opening Checkout...">Continue Payment</button>
-                    </form>
-                    {% endif %}
-                    {% if booking.payment_status in ('Pending', 'Paid') %}
-                    <form action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="POST">
-                        <button type="submit" class="btn-danger btn-secondary" data-loading-text="Cancelling...">Cancel Booking</button>
-                    </form>
+                    <a href="/movie/{{ booking.movie_id }}" class="btn-ghost">Open Movie</a>
+                    
+                    {% if booking.payment_status == 'Paid' %}
+                        <a href="{{ url_for('view_booking_ticket', booking_id=booking.id) }}" 
+                           class="btn-ghost" style="background: #ff5b2e; border-color: #ff5b2e;">
+                           View Ticket
+                        </a>
+                    {% elif booking.payment_status == 'Pending' %}
+                        <form action="/checkout/{{ booking.id }}" method="POST">
+                            <button type="submit" class="btn-ghost" style="background: #ff5b2e; border-color: #ff5b2e; cursor: pointer;">
+                                Pay Now
+                            </button>
+                        </form>
                     {% endif %}
                 </div>
             </div>
         </article>
         {% endfor %}
-    </section>
+    </div>
     {% else %}
-    <div class="empty-state">You do not have any bookings yet. Open the movie page to create your first booking.</div>
+    <div style="text-align: center; padding: 60px; background: #161616; border-radius: 24px; border: 1px dashed #333;">
+        <p style="color: #666;">No bookings found in your history.</p>
+        <a href="/movies" style="color: #ff5b2e; text-decoration: none; font-weight: 700;">Browse Movies Now →</a>
+    </div>
     {% endif %}
 </main>
 
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script>
+    window.addEventListener('load', function() {
+        const loader = document.getElementById('loading-overlay');
+        document.documentElement.classList.remove('app-loading');
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+    });
+</script>
 </body>
 </html>
