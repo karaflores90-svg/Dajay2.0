@@ -24,7 +24,7 @@
         
         .ticket-header {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr; 
             gap: 40px;
             margin-bottom: 40px;
         }
@@ -259,7 +259,7 @@
             <div class="ticket-right">
                 {% if booking.payment_status == 'Paid' and booking.qr_code %}
                 <div class="qr-code-wrapper">
-                    <img src="{{ booking.qr_code }}" alt="Ticket QR Code">
+                    <img src="{{ url_for('static', filename='qrcodes/' + booking.qr_code) }}" alt="Ticket QR Code">
                 </div>
                 {% else %}
                 <div style="text-align: center; color: #a9a9a9; padding: 40px;">

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Movies - Cinemique</title>
     <script>
+      // This adds the loading state immediately
       document.documentElement.classList.add("app-loading");
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
@@ -81,26 +82,11 @@
         font-size: 0.84rem;
         font-weight: 700;
       }
-      .status-live {
-        color: #84f0ab;
-        background: rgba(0, 255, 136, 0.1);
-        border-color: rgba(0, 255, 136, 0.2);
-      }
-      .status-soon {
-        color: #ffd38f;
-        background: rgba(255, 180, 0, 0.12);
-        border-color: rgba(255, 180, 0, 0.22);
-      }
-      .status-ended {
-        color: #9fd6ff;
-        background: rgba(85, 165, 255, 0.12);
-        border-color: rgba(85, 165, 255, 0.22);
-      }
-      .status-archived {
-        color: #d3d3d3;
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.14);
-      }
+      .status-live { color: #84f0ab; background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+      .status-soon { color: #ffd38f; background: rgba(255, 180, 0, 0.12); border-color: rgba(255, 180, 0, 0.22); }
+      .status-ended { color: #9fd6ff; background: rgba(85, 165, 255, 0.12); border-color: rgba(85, 165, 255, 0.22); }
+      .status-archived { color: #d3d3d3; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.14); }
+      
       .action-links {
         display: flex;
         gap: 10px;
@@ -110,11 +96,6 @@
         color: #9f9f9f;
         font-size: 0.9rem;
         line-height: 1.5;
-      }
-      @media (max-width: 900px) {
-        .topbar {
-          flex-direction: column;
-        }
       }
     </style>
   </head>
@@ -147,9 +128,7 @@
         </div>
         <div class="action-links">
           <a href="/admin" class="btn btn-primary">Add New Movie</a>
-          <a href="/admin/reports" class="btn-secondary btn-ghost">
-            Open Reports
-          </a>
+          <a href="/admin/reports" class="btn-secondary btn-ghost">Open Reports</a>
         </div>
       </section>
 
@@ -162,18 +141,11 @@
             value="{{ search_query }}"
             placeholder="Search the movie library..."
           />
-          <button
-            type="submit"
-            class="btn-submit btn-primary"
-            style="width: auto; min-width: 160px"
-            data-loading-text="Searching..."
-          >
+          <button type="submit" class="btn-submit btn-primary" style="width: auto; min-width: 160px" data-loading-text="Searching...">
             Search Library
           </button>
           {% if search_query %}
-          <a href="{{ url_for('admin_movies') }}" class="btn-secondary btn-ghost">
-            Clear Search
-          </a>
+          <a href="{{ url_for('admin_movies') }}" class="btn-secondary btn-ghost">Clear Search</a>
           {% endif %}
         </form>
       </section>
@@ -199,70 +171,44 @@
             <td>
               <div class="title-block">
                 <img
-                  src="{{ name }}1"
-                  alt="{{ name }}2"
-                  class="movie-poster-sm"
-                />
+                        src="{{ url_for('static', filename=movie.image) }}"
+                        alt="{{ movie.title }}"
+                        class="movie-poster-sm"
+                      />
                 <div>
-                  <strong>{{ name }}3</strong>
-                  <div class="meta">{{ name }}4 | {{ name }}5</div>
+                  <strong>{{ movie.title }}</strong>
+                  <div class="meta">{{ movie.genre }} | {{ movie.rating }}</div>
                 </div>
               </div>
             </td>
-            <td><span class="pill {{ name }}6">{{ name }}7</span></td>
+            <td><span class="pill {{ status_class }}">{{ movie.status }}</span></td>
             <td>
-              <div class="meta">
-                <strong>Hall:</strong>
-                {{ name }}8
-              </div>
-              <div class="meta">
-                <strong>Runtime:</strong>
-                {{ name }}9 mins
-              </div>
+              <div class="meta"><strong>Hall:</strong> {{ movie.hall_name }}</div>
+              <div class="meta"><strong>Runtime:</strong> {{ movie.duration }} mins</div>
             </td>
             <td>
               {% if movie.is_featured %}
-              <span class="pill">{{ format_month_label(movie.featured_month) }}</span>
+              <span class="pill">Featured {{ format_month_label(movie.featured_month) }}</span>
               {% else %}
               <span class="meta">Not featured</span>
               {% endif %}
             </td>
             <td>
-              <div class="meta">
-                <strong>Actors:</strong>
-                {{ movie.actors or 'TBA' }}
-              </div>
-              <div class="meta">
-                <strong>Directors:</strong>
-                {{ movie.directors or 'TBA' }}
-              </div>
+              <div class="meta"><strong>Actors:</strong> {{ movie.actors or 'TBA' }}</div>
+              <div class="meta"><strong>Directors:</strong> {{ movie.directors or 'TBA' }}</div>
             </td>
             <td>
               <div class="meta">
-                <strong>Next:</strong>
-                {{ format_display_date(movie.next_schedule_date) if movie.next_schedule_date else 'No schedule yet' }}
+                <strong>Next:</strong> 
+                {{ format_display_date(movie.next_schedule_date) if movie.next_schedule_date else 'No schedule' }}
               </div>
-              <div class="meta">
-                <strong>Total showtimes:</strong>
-                {{ movie.schedule_count }}
-              </div>
+              <div class="meta"><strong>Total showtimes:</strong> {{ movie.schedule_count }}</div>
             </td>
             <td class="meta">{{ movie.updated_at or movie.created_at or 'N/A' }}</td>
             <td>
               <div class="action-links">
-                <a href="/edit_movie_page/{{ movie.id }}" class="btn-link edit">
-                  Edit
-                </a>
-                <a href="{{ url_for('admin_movies') }}0" class="btn-link edit" target="_blank">
-                  Preview
-                </a>
-                <a
-                  href="{{ url_for('admin_movies') }}1"
-                  class="btn-link delete"
-                  onclick="return confirm('Delete this movie?');"
-                >
-                  Delete
-                </a>
+                <a href="/edit_movie_page/{{ movie.id }}" class="btn-link edit">Edit</a>
+                <a href="/delete_movie/{{ movie.id }}" class="btn-link delete" onclick="return confirm('Delete {{ movie.title }}?');">Delete</a>
               </div>
             </td>
           </tr>
@@ -271,12 +217,33 @@
       </table>
       {% else %}
       <div class="empty-state">
-        {{ url_for('admin_movies') }}4No movies matched your search for
-        "{{ url_for('admin_movies') }}5".{{ url_for('admin_movies') }}6No movies uploaded yet.{{ url_for('admin_movies') }}7
+        {% if search_query %}
+          No movies matched your search for "{{ search_query }}".
+        {% else %}
+          No movies uploaded yet.
+        {% endif %}
       </div>
       {% endif %}
     </main>
 
-    <script src="{{ url_for('admin_movies') }}9"></script>
+    <script>
+      window.addEventListener('load', function() {
+        // Remove the loading class once the window is fully loaded
+        if (document.documentElement.classList.contains('app-loading')) {
+            document.documentElement.classList.remove('app-loading');
+        }
+      });
+
+      // Simple form submission feedback
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+          const btn = this.querySelector('.btn-submit');
+          if (btn && btn.getAttribute('data-loading-text')) {
+            btn.innerHTML = btn.getAttribute('data-loading-text');
+            btn.style.opacity = '0.6';
+          }
+        });
+      });
+    </script>
   </body>
 </html>

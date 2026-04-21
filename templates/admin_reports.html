@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Reports - Cinemique</title>
     <script>
+      // This adds the loading state immediately
       document.documentElement.classList.add("app-loading");
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
@@ -208,11 +209,11 @@
         </div>
         <div class="summary-card section-card">
           <span style="color: #a8a8a8">Pending Value</span>
-          <strong>{{ name }}0</strong>
+          <strong>{{ format_php_amount(report_data.summary.pending_transaction_value) }}</strong>
         </div>
         <div class="summary-card section-card">
           <span style="color: #a8a8a8">Avg Occupancy</span>
-          <strong>{{ name }}1%</strong>
+          <strong>{{ report_data.summary.avg_occupancy_percentage or '0' }}%</strong>
         </div>
       </section>
 
@@ -231,9 +232,9 @@
             <tbody>
               {% for movie in report_data.top_movies %}
               <tr>
-                <td>{{ name }}4</td>
-                <td>{{ name }}5</td>
-                <td>{{ name }}6</td>
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.booking_count }}</td>
+                <td>{{ movie.tickets_sold }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -285,55 +286,20 @@
               <th>Seats</th>
               <th>Amount</th>
               <th>Status</th>
-              <th>Update</th>
             </tr>
           </thead>
           <tbody>
             {% for booking in report_data.recent_bookings %}
-            {% set booking_class = 'status-pending' if booking.payment_status == 'Pending' else 'status-paid' if booking.payment_status == 'Paid' else 'status-refunded' if booking.payment_status == 'Refunded' else 'status-cancelled' %}
+            {% set status_class = 'status-paid' if booking.payment_status == 'Paid' else 'status-pending' if booking.payment_status == 'Pending' else 'status-refunded' if booking.payment_status == 'Refunded' else 'status-cancelled' %}
             <tr>
-              <td>{{ report_data.summary.daily_bookings }}3</td>
-              <td>{{ report_data.summary.daily_bookings }}4</td>
-              <td>{{ report_data.summary.daily_bookings }}5</td>
+              <td>{{ booking.booking_reference }}</td>
+              <td>{{ booking.user_name }}</td>
+              <td>{{ booking.title }}</td>
+              <td>{{ booking.schedule_date }} | {{ booking.schedule_time }} | {{ booking.hall_name }}</td>
+              <td>{{ booking.ticket_quantity }}</td>
+              <td>₱{{ booking.payment_amount }}</td>
               <td>
-                {{ report_data.summary.daily_bookings }}6
-                <br />
-                {{ report_data.summary.daily_bookings }}7
-                <br />
-                {{ report_data.summary.daily_bookings }}8
-              </td>
-              <td>{{ report_data.summary.daily_bookings }}9</td>
-              <td>{{ report_data.summary.weekly_bookings }}0</td>
-              <td>
-                <span class="status-pill {{ report_data.summary.weekly_bookings }}1">{{ report_data.summary.weekly_bookings }}2</span>
-              </td>
-              <td>
-                <form
-                  action="{{ report_data.summary.weekly_bookings }}3"
-                  method="POST"
-                  style="display: flex; gap: 10px; flex-wrap: wrap"
-                >
-                  <select
-                    name="payment_status"
-                    class="search-select status-select"
-                  >
-                    {% for status in payment_statuses %}
-                    <option
-                      value="{{ report_data.summary.weekly_bookings }}5"
-                      {{ report_data.summary.weekly_bookings }}6selected{{ report_data.summary.weekly_bookings }}7
-                    >
-                      {{ report_data.summary.weekly_bookings }}8
-                    </option>
-                    {% endfor %}
-                  </select>
-                  <button
-                    type="submit"
-                    class="btn-submit btn-primary btn-compact"
-                    data-loading-text="Saving..."
-                  >
-                    Save
-                  </button>
-                </form>
+                <span class="status-pill {{ status_class }}">{{ booking.payment_status }}</span>
               </td>
             </tr>
             {% endfor %}
@@ -362,13 +328,13 @@
           <tbody>
             {% for row in report_data.occupancy_rows %}
             <tr>
-              <td>{{ report_data.summary.total_transactions }}5</td>
-              <td>{{ report_data.summary.total_transactions }}6</td>
-              <td>{{ report_data.summary.total_transactions }}7</td>
-              <td>{{ report_data.summary.total_transactions }}8</td>
-              <td>{{ report_data.summary.total_transactions }}9</td>
-              <td>{{ report_data.summary.paid_bookings }}0/{{ report_data.summary.paid_bookings }}1</td>
-              <td>{{ report_data.summary.paid_bookings }}2%</td>
+              <td>{{ row.title }}</td>
+              <td>{{ row.cinema_name }}</td>
+              <td>{{ row.hall_name }}</td>
+              <td>{{ row.display_date }}</td>
+              <td>{{ row.display_time }}</td>
+              <td>{{ row.seats_booked }}/40</td>
+              <td>{{ row.occupancy_percent }}%</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -379,6 +345,24 @@
       </section>
     </main>
 
-    <script src="{{ report_data.summary.paid_bookings }}6"></script>
+    <script>
+      window.addEventListener('load', function() {
+        // Remove the loading class once the window is fully loaded
+        if (document.documentElement.classList.contains('app-loading')) {
+            document.documentElement.classList.remove('app-loading');
+        }
+      });
+
+      // Simple form submission feedback
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+          const btn = this.querySelector('.btn-submit');
+          if (btn && btn.getAttribute('data-loading-text')) {
+            btn.innerHTML = btn.getAttribute('data-loading-text');
+            btn.style.opacity = '0.6';
+          }
+        });
+      });
+    </script>
   </body>
 </html>

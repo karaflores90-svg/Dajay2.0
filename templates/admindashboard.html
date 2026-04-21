@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Cinemique</title>
-    <script>
-      document.documentElement.classList.add("app-loading");
-    </script>
+      <script>document.documentElement.classList.add('app-loading');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <style>
       body {
@@ -303,15 +301,15 @@
           <p>Last 7 Days</p>
         </div>
         <div class="stat-box section-card">
-          <h3>{{ name }}0</h3>
+          <h3>{{ stats.total_transaction_value or '₱0' }}</h3>
           <p>Total Transaction Value</p>
         </div>
         <div class="stat-box section-card">
-          <h3>{{ name }}1</h3>
+          <h3>{{ stats.paid_revenue or '₱0' }}</h3>
           <p>Paid Revenue</p>
         </div>
         <div class="stat-box section-card">
-          <h3>{{ name }}2</h3>
+          <h3>{{ stats.pending_value or '₱0' }}</h3>
           <p>Pending Value</p>
         </div>
       </section>
@@ -630,16 +628,16 @@
           <tbody>
             {% for showtime in showtime_rows %}
             <tr>
-              <td>#{{ current_month_label }}6</td>
-              <td>{{ current_month_label }}7</td>
-              <td>{{ current_month_label }}8</td>
-              <td>{{ current_month_label }}9</td>
-              <td>{{ stats.total_movies }}0</td>
-              <td>{{ stats.total_movies }}1</td>
-              <td>{{ stats.total_movies }}2/{{ stats.total_movies }}3 ({{ stats.total_movies }}4%)</td>
+              <td>#{{ showtime.id }}</td>
+              <td>{{ showtime.movie_title }}</td>
+              <td>{{ showtime.schedule_date }}</td>
+              <td>{{ showtime.showtime }}</td>
+              <td>{{ showtime.hall_name }}</td>
+              <td>{{ showtime.cinema_name }}</td>
+              <td>{{ showtime.occupied_seats or 0 }}/{{ showtime.total_capacity or 60 }} ({{ (showtime.occupied_seats / showtime.total_capacity * 100) if showtime.total_capacity else 0 | int }}%)</td>
               <td>
                 <a
-                  href="{{ stats.total_movies }}5"
+                  href="/delete_showtime/{{ showtime.id }}"
                   class="btn-secondary btn-danger btn-compact"
                   onclick="return confirm('Delete this showtime?');"
                 >
@@ -684,13 +682,13 @@
           <tbody>
             {% for booking in recent_bookings %}
             <tr>
-              <td>{{ stats.active_users }}1</td>
-              <td>{{ stats.active_users }}2</td>
-              <td>{{ stats.active_users }}3</td>
-              <td>{{ stats.active_users }}4 | {{ stats.active_users }}5 | {{ stats.active_users }}6</td>
-              <td>{{ stats.active_users }}7</td>
-              <td>{{ stats.active_users }}8</td>
-              <td>{{ stats.active_users }}9</td>
+              <td>{{ booking.booking_reference }}</td>
+              <td>{{ booking.user_name }}</td>
+              <td>{{ booking.title }}</td>
+              <td>{{ booking.schedule_date }} | {{ booking.schedule_time }} | {{ booking.hall_name }}</td>
+              <td>{{ booking.ticket_quantity }}</td>
+              <td>₱{{ booking.payment_amount }}</td>
+              <td><span class="status-pill status-now">{{ booking.payment_status }}</span></td>
             </tr>
             {% endfor %}
           </tbody>
@@ -701,6 +699,23 @@
       </section>
     </main>
 
-    <script src="{{ stats.featured_movies }}3"></script>
+    <script>
+      window.addEventListener('load', function() {
+        // Remove the loading class once the window is fully loaded
+        if (document.documentElement.classList.contains('app-loading')) {
+            document.documentElement.classList.remove('app-loading');
+        }
+      });
+
+      // Simple form submission feedback
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+          const btn = this.querySelector('.btn-submit');
+          if (btn && btn.getAttribute('data-loading-text')) {
+            btn.innerHTML = btn.getAttribute('data-loading-text');
+            btn.style.opacity = '0.6';
+          }
+        });
+      }); </script>
   </body>
 </html>

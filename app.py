@@ -13,7 +13,7 @@ from urllib import request as urllib_request
 from io import BytesIO
 
 import qrcode
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, current_app
 from werkzeug.utils import secure_filename
 
 from dotenv import load_dotenv
@@ -291,21 +291,35 @@ def parse_paymongo_error_response(response_text, fallback_message):
 
 
 def generate_ticket_qr_code(booking_reference, booking_id, seats, movie_title):
-    # This gets your current IP/Domain (e.g., http://192.168.1.5:5000)
+    # 1. Ensure the directory exists
+    # Using current_app.root_path makes the path absolute and reliable
+    qr_folder = os.path.join(current_app.root_path, 'static', 'qrcodes')
+    
+    if not os.path.exists(qr_folder):
+        os.makedirs(qr_folder)
+
+    # 2. Build the data URL
     base_url = request.host_url.rstrip('/') 
+    data = f"{base_url}/bookings/scan-qr?booking_id={booking_id}"
     
-    # This is the "Action Link" the phone will open
-    qr_data = f"{base_url}/bookings/scan-qr?booking_id={booking_id}"
-    
-    qr = qrcode.QRCode(box_size=10, border=5)
-    qr.add_data(qr_data)
+    # 3. Generate the QR image
+    qr = qrcode.QRCode(
+        version=1, 
+        error_correction=qrcode.constants.ERROR_CORRECT_L, # Added for stability
+        box_size=10, 
+        border=4 # Standard border is 4
+    )
+    qr.add_data(data)
     qr.make(fit=True)
     
+    # 4. Create and save the image
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save(f"static/qrcodes/qr_{booking_id}.png")
     
-    return f"static/qrcodes/qr_{booking_id}.png"
-
+    file_name = f"qr_{booking_id}.png"
+    file_path = os.path.join(qr_folder, file_name)
+    img.save(file_path)
+    
+    return file_name
 
 
 
